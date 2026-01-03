@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* ===== PDF SAFE COLORS (NO OKLCH) ===== */
+.invoice-pdf *,
+.invoice-pdf {
+  color: rgb(0, 0, 0) !important;
+  background-color: rgb(255, 255, 255) !important;
+  border-color: rgb(0, 0, 0) !important;
+}
+
+/* Hide buttons during print/PDF */
+@media print {
+  .print\:hidden {
+    display: none !important;
+  }
+}

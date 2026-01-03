@@ -13,31 +13,44 @@ export default function Login() {
     const username = e.target.username.value;
     const password = e.target.password.value;
 
-    /* Simple role-based auth check */
     if (role === "admin" && username === "admin" && password === "1234") {
-        localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem("isAuthenticated", "true");
       navigate("/admin");
-    } 
-    else if (role === "tendor" && username === "tendor" && password === "1234") {
-        localStorage.setItem('isAuthenticated', 'true');
+    } else if (role === "tendor" && username === "tendor" && password === "1234") {
+      localStorage.setItem("isAuthenticated", "true");
       navigate("/tendor");
-    } 
-    else if (role === "coordinator" && username === "coordinator" && password === "1234") {
-        localStorage.setItem('isAuthenticated', 'true');
+    } else if (
+      role === "coordinator" &&
+      username === "coordinator" &&
+      password === "1234"
+    ) {
+      localStorage.setItem("isAuthenticated", "true");
       navigate("/coordinator");
-    } 
-    else {
+    } else {
       alert("Invalid credentials or role selection");
     }
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-end bg-cover bg-center p-4"
+      className="
+        min-h-screen flex items-center
+        justify-center md:justify-end
+        bg-cover bg-center
+        px-4 sm:px-6
+      "
       style={{ backgroundImage: "url('/bg.jpg')" }}
     >
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-md p-8 rounded-xl shadow-lg mr-10">
-        <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+      <div
+        className="
+          w-full max-w-md
+          bg-white/80 backdrop-blur-md
+          p-6 sm:p-8
+          rounded-xl shadow-lg
+          md:mr-10
+        "
+      >
+        <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">
           Welcome Back
         </h2>
 

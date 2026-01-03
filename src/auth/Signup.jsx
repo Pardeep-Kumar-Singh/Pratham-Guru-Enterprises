@@ -7,11 +7,24 @@ export default function Signup() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-end bg-cover bg-center p-4"
+      className="
+        min-h-screen flex items-center
+        justify-center md:justify-end
+        bg-cover bg-center
+        px-4 sm:px-6
+      "
       style={{ backgroundImage: "url('/bg.jpg')" }}
     >
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-md p-8 rounded-xl shadow-lg mr-10">
-        <h2 className="text-2xl font-bold mb-5 text-center text-gray-800">
+      <div
+        className="
+          w-full max-w-md
+          bg-white/80 backdrop-blur-md
+          p-6 sm:p-8
+          rounded-xl shadow-lg
+          md:mr-10
+        "
+      >
+        <h2 className="text-xl sm:text-2xl font-bold mb-5 text-center text-gray-800">
           Create Account
         </h2>
 
@@ -25,7 +38,7 @@ export default function Signup() {
               type="text"
               required
               placeholder="Enter full name"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
@@ -38,7 +51,7 @@ export default function Signup() {
               type="email"
               required
               placeholder="Enter email"
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
@@ -52,7 +65,7 @@ export default function Signup() {
                 type={showPassword ? "text" : "password"}
                 required
                 placeholder="Create password"
-                className="w-full px-3 py-2 border rounded-lg pr-10 focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-lg pr-10 focus:ring-2 focus:ring-blue-500 outline-none"
               />
               <span
                 onClick={() => setShowPassword(!showPassword)}
@@ -74,14 +87,17 @@ export default function Signup() {
             </label>
             <select
               required
-              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="">-- Choose Role --</option>
               <option value="tendor">Tendor</option>
             </select>
           </div>
 
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold transition"
+          >
             Sign Up
           </button>
 

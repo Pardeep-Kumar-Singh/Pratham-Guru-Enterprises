@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Home, Package, FileText, Clipboard, User } from 'lucide-react';
 
 const Sidebar = ({ activeScreen, setActiveScreen, sidebarOpen, setSidebarOpen }) => {
+  const sidebarRef = useRef(null);
+
   const menuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
     { id: 'designs', name: 'Designs & Product Types', icon: Clipboard },
@@ -11,8 +13,42 @@ const Sidebar = ({ activeScreen, setActiveScreen, sidebarOpen, setSidebarOpen })
     { id: 'profile', name: 'Profile', icon: User }
   ];
 
+  /* 📱 Close sidebar on outside click (mobile only) */
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (
+        sidebarOpen &&
+        window.innerWidth < 1024 &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target)
+      ) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [sidebarOpen, setSidebarOpen]);
+
+  /* 📱 Menu click handler with 1s auto-close */
+  const handleMenuClick = (id) => {
+    setActiveScreen(id);
+
+    if (window.innerWidth < 1024) {
+      setTimeout(() => {
+        setSidebarOpen(false);
+      }, 500); // 1 second delay
+    }
+  };
+
   return (
     <aside
+      ref={sidebarRef}
       className={`
         ${sidebarOpen ? 'w-64' : 'w-0 lg:w-20'}
         bg-gray-900 text-white
@@ -46,10 +82,7 @@ const Sidebar = ({ activeScreen, setActiveScreen, sidebarOpen, setSidebarOpen })
           return (
             <button
               key={item.id}
-              onClick={() => {
-                setActiveScreen(item.id);
-                if (window.innerWidth < 1024) setSidebarOpen(false);
-              }}
+              onClick={() => handleMenuClick(item.id)}
               className={`
                 w-full flex items-center gap-3
                 px-4 py-3 rounded-lg transition

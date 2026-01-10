@@ -7,6 +7,7 @@ const MobileNav = ({
   setMobileMenuOpen
 }) => {
   return (
+    <div className="mobile-nav print-hidden">
     <div className="lg:hidden border-t border-gray-200 px-4 py-2 space-y-1 bg-white">
       {menuItems.map((item) => {
         const Icon = item.icon;
@@ -28,6 +29,7 @@ const MobileNav = ({
           </button>
         );
       })}
+    </div>
     </div>
   );
 };

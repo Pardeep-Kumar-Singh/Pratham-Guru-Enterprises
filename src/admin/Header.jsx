@@ -14,6 +14,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
   };
 
   return (
+    <div className="print-hidden">
     <div className="bg-white shadow-sm sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 py-3">
         
@@ -49,6 +50,7 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
         </div>
 
       </div>
+    </div>
     </div>
   );
 };

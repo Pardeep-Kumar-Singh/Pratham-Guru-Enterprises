@@ -1,6 +1,7 @@
 import React from 'react'
 const DesktopNav = ({ menuItems, activeTab, setActiveTab }) => {
   return (
+    <div className="desktop-nav print-hidden">
     <div className="hidden lg:flex border-t border-gray-200 bg-white">
       {/* Center wrapper */}
       <div className="flex mx-auto">
@@ -22,6 +23,7 @@ const DesktopNav = ({ menuItems, activeTab, setActiveTab }) => {
           );
         })}
       </div>
+    </div>
     </div>
   );
 };

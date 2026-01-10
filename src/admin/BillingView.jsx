@@ -38,13 +38,6 @@ const BillingView = () => {
   if (showInvoice) {
     return (
       <div className="space-y-4">
-        <button
-          onClick={() => setShowInvoice(false)}
-          className="text-blue-600 hover:text-blue-700 font-semibold"
-        >
-          ← Back to Billing
-        </button>
-
         <InvoiceTemplate invoice={invoiceData} />
       </div>
     );

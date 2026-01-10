@@ -1,16 +1,89 @@
 @import "tailwindcss";
 
-/* ===== PDF SAFE COLORS (NO OKLCH) ===== */
-.invoice-pdf *,
-.invoice-pdf {
-  color: rgb(0, 0, 0) !important;
-  background-color: rgb(255, 255, 255) !important;
-  border-color: rgb(0, 0, 0) !important;
+/* ======================================
+   INVOICE PDF / PRINT SAFE STYLES
+====================================== */
+
+/* Base invoice safety (html2pdf compatible) */
+.invoice-pdf,
+.invoice-pdf * {
+  color: #000 !important;
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
 }
 
-/* Hide buttons during print/PDF */
+/* Prevent table row breaking */
+.invoice-pdf table {
+  width: 100%;
+  border-collapse: collapse;
+  page-break-inside: auto;
+}
+
+.invoice-pdf thead {
+  display: table-header-group; /* repeat header on each page */
+}
+
+.invoice-pdf tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
+}
+
+.invoice-table {
+  page-break-inside: avoid;
+}
+
+.invoice-pdf td,
+.invoice-pdf th {
+  page-break-inside: avoid;
+}
+
+/* Manual page break helper */
+.invoice-page-break {
+  page-break-before: always;
+}
+
+/* ======================================
+   PRINT MODE (Browser + PDF)
+====================================== */
 @media print {
-  .print\:hidden {
+  /* Hide full app layout */
+  * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  header,
+  nav,
+  footer,
+  .desktop-nav,
+  .mobile-nav,
+  .bottom-nav,
+  .print-hidden {
     display: none !important;
   }
+
+  /* Show only invoice */
+  .invoice-pdf {
+    display: block !important;
+    position: relative;
+  }
+
+  body {
+    background: #fff !important;
+    margin: 0;
+  }
+
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
 }
+/* Prevent table rows from splitting */
+.invoice-pdf table,
+.invoice-pdf tr,
+.invoice-pdf td,
+.invoice-pdf th {
+  page-break-inside: avoid !important;
+}
+

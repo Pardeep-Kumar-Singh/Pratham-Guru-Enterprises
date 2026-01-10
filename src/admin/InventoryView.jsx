@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { productMasterData } from "./productMasterData";
 import { Trash2 } from "lucide-react";
 
-const InventoryView = () => {
+const STORAGE_KEY = "day_wise_inventory";
+
+const InventoryView = ({ onInvoiceDataChange }) => {
   /* ✅ Only Active Products */
   const activeProducts = productMasterData.filter((p) => p.status === "Active");
 
-  /* ✅ Unique Categories (count once) */
+  /* ✅ Unique Categories */
   const categories = [...new Set(activeProducts.map((p) => p.category))];
 
   /* 🔹 Inventory State */
@@ -18,6 +20,16 @@ const InventoryView = () => {
     baseRate: "",
     quantity: "",
   });
+
+  /* ===============================
+     LOAD DAY-WISE DATA (ON START)
+  =============================== */
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    const dayEntries = stored[form.date] || [];
+    setEntries(dayEntries);
+    onInvoiceDataChange?.(dayEntries);
+  }, [form.date]);
 
   const itemsByCategory = activeProducts.filter(
     (p) => p.category === form.category
@@ -36,13 +48,32 @@ const InventoryView = () => {
     });
   };
 
+  /* ===============================
+     SAVE DAY-WISE ENTRIES
+  =============================== */
+  const persistEntries = (updatedEntries) => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    stored[form.date] = updatedEntries;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+
+    /* 🔁 REAL-TIME INVOICE UPDATE */
+    onInvoiceDataChange?.(updatedEntries);
+  };
+
   const handleAddEntry = () => {
     if (!form.category || !form.item || !form.quantity) {
       alert("Please fill all required fields");
       return;
     }
 
-    setEntries([...entries, { id: entries.length + 1, ...form }]);
+    const newEntry = {
+      id: entries.length + 1,
+      ...form,
+    };
+
+    const updated = [...entries, newEntry];
+    setEntries(updated);
+    persistEntries(updated);
 
     setForm({
       ...form,
@@ -53,9 +84,11 @@ const InventoryView = () => {
   };
 
   const handleDeleteEntry = (id) => {
-    if (window.confirm("Are you sure you want to delete this entry?")) {
-      setEntries(entries.filter((entry) => entry.id !== id));
-    }
+    if (!window.confirm("Are you sure you want to delete this entry?")) return;
+
+    const updated = entries.filter((e) => e.id !== id);
+    setEntries(updated);
+    persistEntries(updated);
   };
 
   return (
@@ -153,45 +186,31 @@ const InventoryView = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {entries.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan="6"
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
-                    No inventory entries yet.
+              {entries.map((e) => (
+                <tr key={e.id} className="hover:bg-indigo-50 transition">
+                  <td className="px-4 py-3 text-center font-semibold">
+                    {e.date}
+                  </td>
+                  <td className="px-4 py-3 text-center">{e.category}</td>
+                  <td className="px-4 py-3 text-center font-medium">
+                    {e.item}
+                  </td>
+                  <td className="px-4 py-3 text-center font-semibold text-indigo-600">
+                    ₹{e.baseRate}
+                  </td>
+                  <td className="px-4 py-3 text-center font-semibold">
+                    {e.quantity}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => handleDeleteEntry(e.id)}
+                      className="p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </td>
                 </tr>
-              ) : (
-                entries.map((e) => (
-                  <tr key={e.id} className="hover:bg-indigo-50 transition">
-                    <td className="px-4 py-3 text-center font-semibold text-gray-800">
-                      {e.date}
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-600">
-                      {e.category}
-                    </td>
-                    <td className="px-4 py-3 text-center font-medium text-gray-800">
-                      {e.item}
-                    </td>
-                    <td className="px-4 py-3 text-center font-semibold text-indigo-600">
-                      ₹{e.baseRate}
-                    </td>
-                    <td className="px-4 py-3 text-center font-semibold text-gray-800">
-                      {e.quantity}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleDeleteEntry(e.id)}
-                        className="inline-flex items-center justify-center p-2 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg transition"
-                        title="Delete Entry"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
+              ))}
             </tbody>
           </table>
         </div>

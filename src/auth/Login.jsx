@@ -1,33 +1,47 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import api from "../api/axios";
 
 export default function Login() {
-  const [role, setRole] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     const username = e.target.username.value;
     const password = e.target.password.value;
+    const formData = new FormData();
+    formData.append('username', username);
+    formData.append('password', password);
 
-    if (role === "admin" && username === "admin" && password === "1234") {
+    try {
+      const response = await api.post("/token", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const { access_token } = response.data;
+      localStorage.setItem("token", access_token);
+
+      // Decode token to get role
+      // Simple base64 decoding for payload
+      const payload = JSON.parse(atob(access_token.split('.')[1]));
+      localStorage.setItem("userRole", payload.role);
       localStorage.setItem("isAuthenticated", "true");
-      navigate("/admin");
-    } else if (role === "tendor" && username === "tendor" && password === "1234") {
-      localStorage.setItem("isAuthenticated", "true");
-      navigate("/tendor");
-    } else if (
-      role === "coordinator" &&
-      username === "coordinator" &&
-      password === "1234"
-    ) {
-      localStorage.setItem("isAuthenticated", "true");
-      navigate("/coordinator");
-    } else {
-      alert("Invalid credentials or role selection");
+
+      if (payload.role === "admin") navigate("/admin");
+      else if (payload.role === "tendor") navigate("/tendor");
+      else if (payload.role === "coordinator") navigate("/coordinator");
+      else navigate("/");
+
+    } catch (err) {
+      console.error(err);
+      setError("Invalid username or password");
     }
   };
 
@@ -53,6 +67,12 @@ export default function Login() {
         <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">
           Welcome Back
         </h2>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Username */}
@@ -102,24 +122,6 @@ export default function Login() {
                 Forgot Password?
               </button>
             </p>
-          </div>
-
-          {/* Role */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-1">
-              Select Role
-            </label>
-            <select
-              required
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">-- Select Role --</option>
-              <option value="admin">Admin</option>
-              <option value="coordinator">Coordinator</option>
-              <option value="tendor">Tendor</option>
-            </select>
           </div>
 
           <button

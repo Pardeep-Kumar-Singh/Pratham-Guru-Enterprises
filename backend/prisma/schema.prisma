@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int         @id @default(autoincrement())
+  username        String?     @unique(map: "ix_users_username") @db.VarChar(50)
+  email           String?     @unique(map: "ix_users_email") @db.VarChar(100)
+  hashed_password String?     @db.VarChar(255)
+  role            users_role?
+  mobile          String?     @unique @db.VarChar(15)
+  area            String?     @db.VarChar(100)
+  createdAt       DateTime    @default(now())
+
+  @@index([id], map: "ix_users_id")
+  @@map("users")
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  category    String
+  uom         String        @default("pcs")
+  baseRate    Float
+  status      String        @default("Active")
+  createdAt   DateTime      @default(now())
+  variants    Variant[]
+  rateHistory RateHistory[]
+}
+
+model DailyProduction {
+  id          Int               @id @default(autoincrement())
+  date        String            @unique
+  totalQty    Float             @default(0)
+  totalWeight Float             @default(0)
+  totalAmount Float             @default(0)
+  entries     ProductionEntry[]
+  createdAt   DateTime          @default(now())
+}
+
+model ProductionEntry {
+  id                Int             @id @default(autoincrement())
+  dailyProductionId Int
+  dailyProduction   DailyProduction @relation(fields: [dailyProductionId], references: [id])
+  category          String
+  itemName          String
+  uom               String
+  rate              Float
+  qty               Float
+  weight            Float
+  amount            Float
+}
+
+model Artisan {
+  id        Int      @id @default(autoincrement())
+  name      String
+  mobile    String   @unique
+  email     String?
+  area      String?
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+}
+
+model Variant {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  name      String
+  uom       String?
+  baseRate  Float
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+}
+
+model RateHistory {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  oldRate   Float
+  newRate   Float
+  remark    String?
+  createdAt DateTime @default(now())
+}
+
+enum users_role {
+  admin
+  tendor
+  coordinator
+  gola_maker
+  artisan
+}

@@ -10,7 +10,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 /* Admin */
 import AdminDashboard from "./admin/AdminDashboard";
-import UsersView from "./admin/UsersView";
+const UsersView = lazy(() => import("./admin/UsersView"));
 
 /* Admin – Users */
 import TendorList from "./admin/users/TendorList";
@@ -48,7 +48,7 @@ const App = () => {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -58,7 +58,7 @@ const App = () => {
           <Route
             path="/admin/users"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <UsersView />
               </ProtectedRoute>
             }
@@ -66,7 +66,7 @@ const App = () => {
           <Route
             path="/admin/users/tendors"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <TendorList />
               </ProtectedRoute>
             }
@@ -74,7 +74,7 @@ const App = () => {
           <Route
             path="/admin/users/coordinators"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <CoordinatorList />
               </ProtectedRoute>
             }
@@ -82,7 +82,7 @@ const App = () => {
           <Route
             path="/admin/users/gola-makers"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <GolaMakerAccounts />
               </ProtectedRoute>
             }
@@ -90,7 +90,7 @@ const App = () => {
           <Route
             path="/admin/users/artisans"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <ArtisanRegistration />
               </ProtectedRoute>
             }
@@ -100,7 +100,7 @@ const App = () => {
           <Route
             path="/admin/masters/products"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <ProductMaster />
               </ProtectedRoute>
             }
@@ -108,7 +108,7 @@ const App = () => {
           <Route
             path="/admin/masters/variants"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <VariantMaster />
               </ProtectedRoute>
             }
@@ -116,7 +116,7 @@ const App = () => {
           <Route
             path="/admin/masters/rates"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['admin']}>
                 <RateConfiguration />
               </ProtectedRoute>
             }
@@ -126,7 +126,7 @@ const App = () => {
           <Route
             path="/tendor"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['tendor']}>
                 <TendorDashboard />
               </ProtectedRoute>
             }
@@ -136,7 +136,7 @@ const App = () => {
           <Route
             path="/coordinator"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['coordinator']}>
                 <CoordinatorDashboard />
               </ProtectedRoute>
             }

@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import {
   Home,
   Users,
@@ -6,6 +6,8 @@ import {
   Receipt,
   TrendingUp
 } from 'lucide-react';
+
+import { useLocation } from 'react-router-dom';
 
 /* Layout Components */
 import Header from './Header';
@@ -30,8 +32,18 @@ const menuItems = [
 ];
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialTab = searchParams.get('tab') || 'dashboard';
+
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Update tab if URL changes (optional but good for back/forward)
+  useEffect(() => {
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (tab) setActiveTab(tab);
+  }, [location.search]);
 
   const renderContent = () => {
     switch (activeTab) {

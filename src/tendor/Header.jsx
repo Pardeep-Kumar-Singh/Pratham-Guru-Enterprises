@@ -13,7 +13,10 @@ const Header = ({
 
   const handleLogout = () => {
     setProfileOpen(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
     localStorage.removeItem('isAuthenticated');
+    sessionStorage.clear();
     navigate('/');
   };
 
@@ -33,43 +36,43 @@ const Header = ({
           </div>
         </div>
 
-          {/* Profile */}
-          <div className="relative">
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg"
-            >
-              <User size={18} />
-              <ChevronDown size={16} />
-            </button>
+        {/* Profile */}
+        <div className="relative">
+          <button
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg"
+          >
+            <User size={18} />
+            <ChevronDown size={16} />
+          </button>
 
-            {profileOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border">
-                <button
-                  onClick={() => {
-                    setActiveScreen('profile');
-                    setProfileOpen(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"
-                >
-                  View Profile
-                </button>
+          {profileOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border">
+              <button
+                onClick={() => {
+                  setActiveScreen('profile');
+                  setProfileOpen(false);
+                }}
+                className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"
+              >
+                View Profile
+              </button>
 
-                {/* <button className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50">
+              {/* <button className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50">
                   Change Password
                 </button> */}
 
-                <button
-                  onClick={handleLogout}
-                  className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+              <button
+                onClick={handleLogout}
+                className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
+      </div>
     </header>
   );
 };

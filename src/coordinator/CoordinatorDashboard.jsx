@@ -23,20 +23,20 @@ import {
 } from "lucide-react";
 
 const CoordinatorDashboard = () => {
-    const [activeTab, setActiveTab] = useState("overview");
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [showModal, setShowModal] = useState(false);
-    const [modalType, setModalType] = useState("");
-    const [notification, setNotification] = useState(null);
-    //   const [selectedItem, setSelectedItem] = useState(null);
-    
-    const navigate = useNavigate();
-  const handleLogout = () => {
-    // Optional: clear auth/session data
-    localStorage.clear();
-    sessionStorage.clear();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [notification, setNotification] = useState(null);
+  //   const [selectedItem, setSelectedItem] = useState(null);
 
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('isAuthenticated');
+    sessionStorage.clear();
     navigate("/", { replace: true });
   };
   // Data states
@@ -309,13 +309,13 @@ const CoordinatorDashboard = () => {
         woolDistribution.map((item) =>
           item.id === id
             ? {
-                ...item,
-                collected: `${collected} kg`,
-                status:
-                  parseFloat(collected) >= parseFloat(item.distributed)
-                    ? "complete"
-                    : "partial",
-              }
+              ...item,
+              collected: `${collected} kg`,
+              status:
+                parseFloat(collected) >= parseFloat(item.distributed)
+                  ? "complete"
+                  : "partial",
+            }
             : item
         )
       );
@@ -421,9 +421,8 @@ const CoordinatorDashboard = () => {
       {/* Notification Toast */}
       {notification && (
         <div
-          className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${
-            notification.type === "success" ? "bg-green-500" : "bg-red-500"
-          } text-white flex items-center gap-2 animate-fade-in`}
+          className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg ${notification.type === "success" ? "bg-green-500" : "bg-red-500"
+            } text-white flex items-center gap-2 animate-fade-in`}
         >
           {notification.type === "success" ? (
             <CheckCircle size={20} />
@@ -630,11 +629,10 @@ const CoordinatorDashboard = () => {
                   }}
                   className={`
             w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
-            ${
-              activeTab === item.id
-                ? "bg-blue-50 text-blue-600"
-                : "text-gray-600 hover:bg-gray-50"
-            }
+            ${activeTab === item.id
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-50"
+                    }
           `}
                 >
                   <Icon size={20} />
@@ -1113,11 +1111,10 @@ const CoordinatorDashboard = () => {
                           onClick={() =>
                             handleDispatchUpdate(order.id, "packaged")
                           }
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                            order.packaged
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${order.packaged
                               ? "bg-green-100 text-green-700 hover:bg-green-200"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
+                            }`}
                         >
                           <CheckCircle size={20} />
                           <span className="text-sm">Packaged</span>
@@ -1126,11 +1123,10 @@ const CoordinatorDashboard = () => {
                           onClick={() =>
                             handleDispatchUpdate(order.id, "verified")
                           }
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                            order.verified
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${order.verified
                               ? "bg-green-100 text-green-700 hover:bg-green-200"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
+                            }`}
                         >
                           <CheckCircle size={20} />
                           <span className="text-sm">Verified</span>

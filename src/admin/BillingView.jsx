@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import InvoiceTemplate from "./InvoiceTemplate";
+import React, { useState, lazy } from "react";
+const InvoiceTemplate = lazy(() => import("./InvoiceTemplate"));
 
 const BillingView = () => {
   const [showInvoice, setShowInvoice] = useState(false);
@@ -38,7 +38,9 @@ const BillingView = () => {
   if (showInvoice) {
     return (
       <div className="space-y-4">
-        <InvoiceTemplate invoice={invoiceData} />
+        <React.Suspense fallback={<div>Loading invoice...</div>}>
+          <InvoiceTemplate invoice={invoiceData} />
+        </React.Suspense>
       </div>
     );
   }
@@ -67,11 +69,10 @@ const BillingView = () => {
                   </div>
                 </div>
                 <span
-                  className={`text-xs px-3 py-1 rounded-full ${
-                    dispatch.status === "Paid"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
+                  className={`text-xs px-3 py-1 rounded-full ${dispatch.status === "Paid"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                    }`}
                 >
                   {dispatch.status}
                 </span>

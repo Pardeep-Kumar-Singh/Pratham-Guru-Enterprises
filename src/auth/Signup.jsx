@@ -1,9 +1,46 @@
 import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState("tendor");
+  const [mobile, setMobile] = useState("");
+  const [area, setArea] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const fullName = e.target.fullName.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      await api.post("/register", {
+        username: fullName, // Using full name as username for now
+        email: email,
+        password: password,
+        role: role,
+        mobile: mobile,
+        area: area
+      });
+      alert("Registration successful! Please login.");
+      navigate("/");
+    } catch (err) {
+      console.error("Signup error:", err);
+      if (err.response) {
+        setError(err.response.data.detail || "Registration failed. Please try again.");
+      } else if (err.request) {
+        setError("Network error: Could not reach the server. Please ensure the backend is running.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
+    }
+  };
 
   return (
     <div
@@ -28,16 +65,23 @@ export default function Signup() {
           Create Account
         </h2>
 
-        <form className="space-y-4">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Full Name */}
           <div>
             <label className="block text-gray-700 font-medium mb-1">
-              Full Name
+              Username
             </label>
             <input
               type="text"
+              name="fullName"
               required
-              placeholder="Enter full name"
+              placeholder="Enter username"
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
@@ -49,6 +93,7 @@ export default function Signup() {
             </label>
             <input
               type="email"
+              name="email"
               required
               placeholder="Enter email"
               className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -63,6 +108,7 @@ export default function Signup() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
                 required
                 placeholder="Create password"
                 className="w-full px-3 py-2 border rounded-lg pr-10 focus:ring-2 focus:ring-blue-500 outline-none"
@@ -87,11 +133,44 @@ export default function Signup() {
             </label>
             <select
               required
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              <option value="">-- Choose Role --</option>
               <option value="tendor">Tendor</option>
+              <option value="coordinator">Coordinator</option>
+              <option value="admin">Admin</option>
             </select>
+          </div>
+
+          {/* Mobile Number */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Mobile Number
+            </label>
+            <input
+              type="tel"
+              required
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="10-digit mobile"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
+          </div>
+
+          {/* Area / Territory */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-1">
+              Area / Territory
+            </label>
+            <input
+              type="text"
+              required
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              placeholder="Enter your area"
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
           </div>
 
           <button

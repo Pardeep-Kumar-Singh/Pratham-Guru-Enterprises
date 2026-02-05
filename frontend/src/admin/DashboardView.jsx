@@ -10,17 +10,24 @@ const DashboardView = () => {
 
   useEffect(() => {
     fetchStats();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(() => {
+      fetchStats(true); // silent refresh
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchStats = async () => {
-    setLoading(true);
+  const fetchStats = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const response = await api.get('/dashboard/stats');
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -38,8 +45,14 @@ const DashboardView = () => {
       {/* Header with Refresh */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Operational Overview</h2>
-          <p className="text-sm text-gray-500">Real-time metrics for your enterprise</p>
+          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            Operational Overview
+            <span className="flex h-3 w-3 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            </span>
+          </h2>
+          <p className="text-sm text-gray-500">Real-time metrics • Auto-updates every 30s</p>
         </div>
         <button
           onClick={fetchStats}
@@ -109,16 +122,19 @@ const DashboardView = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Today</div>
-              <div className="text-xl font-black text-gray-800">{stats?.production?.today || 0} <span className="text-xs font-normal">units</span></div>
+              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Today (Net)</div>
+              <div className="text-xl font-black text-gray-800">{Number(stats?.production?.todayNet || 0).toFixed(3)} <span className="text-xs font-normal">kg</span></div>
+              <div className="text-[10px] text-gray-400 font-semibold mt-1">
+                Gross: {Number(stats?.production?.today || 0).toFixed(3)} kg
+              </div>
             </div>
             <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Month</div>
-              <div className="text-xl font-black text-gray-800">{(stats?.production?.total || 0).toLocaleString()} <span className="text-xs font-normal">units</span></div>
+              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Total Production</div>
+              <div className="text-xl font-black text-gray-800">{Number(stats?.production?.total || 0).toFixed(3)} <span className="text-xs font-normal">kg</span></div>
             </div>
             <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-              <div className="text-xs text-blue-600 font-bold mb-1 uppercase">Value</div>
-              <div className="text-xl font-black text-blue-700">₹{(stats?.production?.totalAmount / 1000 || 0).toFixed(1)}K</div>
+              <div className="text-xs text-blue-600 font-bold mb-1 uppercase">Today's Value</div>
+              <div className="text-xl font-black text-blue-700">₹{(stats?.production?.todayAmount || 0).toLocaleString()}</div>
             </div>
           </div>
 

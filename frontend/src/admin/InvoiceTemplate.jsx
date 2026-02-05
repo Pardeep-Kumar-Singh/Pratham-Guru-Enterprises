@@ -46,14 +46,15 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
     html2pdf()
       .from(element)
       .set({
-        margin: [0.4, 0.4, 0.4, 0.4],
+        margin: 0, // No PDF margins - let HTML padding handle it. fixes "cutting" issues.
         filename: `Invoice_${derivedInvoice.invoiceNo}.pdf`,
-        image: { type: "jpeg", quality: 0.95 },
+        image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: 2,
+          scale: 3, // Higher scale for clearer text
           useCORS: true,
           backgroundColor: "#ffffff",
           logging: false,
+          scrollY: 0,
         },
         jsPDF: {
           unit: "in",
@@ -63,7 +64,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
         },
         pagebreak: {
           mode: ["css", "legacy"],
-          avoid: ["tr", "td", ".invoice-table"],
+          avoid: ["tr", "td", ".invoice-table", ".avoid-break"],
         },
       })
       .save();
@@ -91,7 +92,8 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
       {/* ===== INVOICE CONTENT ===== */}
       <div
         ref={invoiceRef}
-        className="invoice-pdf bg-white p-6 max-w-5xl mx-auto text-sm text-black"
+        className="invoice-pdf bg-white p-8 mx-auto text-sm text-black shadow-lg"
+        style={{ width: '210mm', minHeight: '297mm' }}
       >
         <h1 className="text-center font-bold text-xl mb-4">INVOICE</h1>
 

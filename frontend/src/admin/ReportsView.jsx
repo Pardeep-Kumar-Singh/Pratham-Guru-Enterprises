@@ -11,21 +11,23 @@ const ReportsSection = () => {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState([]);
   const [workerStats, setWorkerStats] = useState(null);
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'
 
   useEffect(() => {
     fetchReportData();
-  }, [activeReport, dateRange]);
+  }, [activeReport, dateRange, sortOrder]);
 
   const fetchReportData = async () => {
     setLoading(true);
     try {
       let endpoint = '';
       if (activeReport === 'production') endpoint = '/reports/production';
+      else if (activeReport === 'daily') endpoint = '/reports/daily';
       else if (activeReport === 'product') endpoint = '/reports/products';
       else if (activeReport === 'worker' || activeReport === 'tendor') endpoint = '/reports/workers';
 
       const response = await api.get(endpoint, {
-        params: { startDate: dateRange.from, endDate: dateRange.to }
+        params: { startDate: dateRange.from, endDate: dateRange.to, sortOrder }
       });
 
       if (activeReport === 'worker' || activeReport === 'tendor') {
@@ -42,6 +44,7 @@ const ReportsSection = () => {
 
   const reportTypes = [
     { id: 'production', name: 'Monthly Production', icon: BarChart3, color: 'from-pink-500 to-rose-600' },
+    { id: 'daily', name: 'Day Wise Production', icon: Calendar, color: 'from-green-500 to-emerald-600' },
     { id: 'product', name: 'Product-wise Report', icon: Package, color: 'from-purple-500 to-indigo-600' },
     { id: 'tendor', name: 'User Distribution', icon: DollarSign, color: 'from-blue-500 to-cyan-600' },
     { id: 'worker', name: 'Worker Overview', icon: Activity, color: 'from-orange-500 to-amber-600' },
@@ -73,6 +76,22 @@ const ReportsSection = () => {
 
       reportData.forEach(row => {
         const line = [row.month, ...categoryList.map(cat => row[cat] || 0), row.total];
+        csvRows.push(line.map(escapeCSV).join(","));
+      });
+    }
+    else if (activeReport === 'daily') {
+      csvRows.push(["Date", "Production Weight", "Production Amount", "Alter Weight", "Alter Amount", "Net Weight", "Net Amount"].map(escapeCSV).join(","));
+
+      reportData.forEach(row => {
+        const line = [
+          row.date,
+          row.productionWeight,
+          row.productionAmount,
+          row.alterWeight,
+          row.alterAmount,
+          row.netWeight,
+          row.netAmount
+        ];
         csvRows.push(line.map(escapeCSV).join(","));
       });
     }
@@ -316,9 +335,76 @@ const ReportsSection = () => {
     </div>
   );
 
+  const DailyReport = () => {
+    if (loading) return <LoadingPlaceholder />;
+
+    const sortedReportData = [...reportData].sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return sortOrder === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+    });
+
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+            <Calendar className="text-emerald-500" />
+            Day Wise Production Summary (Real-time)
+          </h3>
+          <button
+            onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+            className="flex items-center gap-2 text-sm font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-lg transition-colors"
+          >
+            {sortOrder === 'asc' ? 'Oldest First' : 'Newest First'}
+            <div className="flex flex-col">
+              <div className={`w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[6px] ${sortOrder === 'asc' ? 'border-b-emerald-700' : 'border-b-gray-300'}`}></div>
+              <div className={`w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] mt-[2px] ${sortOrder === 'desc' ? 'border-t-emerald-700' : 'border-t-gray-300'}`}></div>
+            </div>
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+              <tr>
+                <th className="px-6 py-4 text-left">Date</th>
+                <th className="px-6 py-4 text-right">Prod. Weight</th>
+                <th className="px-6 py-4 text-right">Prod. Amount</th>
+                <th className="px-6 py-4 text-right text-red-500">Alter Weight</th>
+                <th className="px-6 py-4 text-right text-red-500">Alter Amount</th>
+                <th className="px-6 py-4 text-right bg-emerald-50 text-emerald-700">Net Weight</th>
+                <th className="px-6 py-4 text-right bg-emerald-50 text-emerald-700">Net Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {sortedReportData.map((row, idx) => (
+                <tr key={idx} className="hover:bg-emerald-50/30 transition">
+                  <td className="px-6 py-4 font-bold text-gray-800">{row.date}</td>
+                  <td className="px-6 py-4 text-right text-gray-600">{Number(row.productionWeight).toFixed(3)} kg</td>
+                  <td className="px-6 py-4 text-right font-bold text-gray-800">₹{Number(row.productionAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-right text-red-500">{Number(row.alterWeight).toFixed(3)} kg</td>
+                  <td className="px-6 py-4 text-right font-bold text-red-500">-₹{Number(row.alterAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-right font-black bg-emerald-50/50 text-emerald-600">{Number(row.netWeight).toFixed(3)} kg</td>
+                  <td className="px-6 py-4 text-right font-black bg-emerald-50/50 text-emerald-700">₹{Number(row.netAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              {reportData.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-6 py-20 text-center text-gray-400 italic">
+                    No daily production data found for this period.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
   const renderReport = () => {
     switch (activeReport) {
       case 'production': return <ProductionReport />;
+      case 'daily': return <DailyReport />;
       case 'product': return <ProductReport />;
       case 'tendor': return <TendorReport />;
       case 'worker': return <TendorReport />; // Using same view for both user stats for now

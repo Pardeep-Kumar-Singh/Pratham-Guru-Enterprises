@@ -47,8 +47,16 @@ const BillingView = () => {
     }
   };
 
+  // Helper to generate YYYYMM invoice number
+  const getInvoiceNo = () => {
+    const targetDate = endDate ? new Date(endDate) : new Date();
+    const yyyy = targetDate.getFullYear();
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    return `INV/${yyyy}${mm}`;
+  };
+
   const invoiceData = {
-    invoiceNo: "INV-" + new Date().getTime().toString().slice(-6),
+    invoiceNo: getInvoiceNo(),
     date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
     buyerName: "Ajooba, Zillivate Ventures Pvt. Ltd. A/c", // Mock buyer as requested to keep design
     buyerCity: "Sonipat, Haryana",

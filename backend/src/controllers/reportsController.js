@@ -118,8 +118,54 @@ const getWorkerStats = async (req, res) => {
     }
 };
 
+const getDayWiseProductionReport = async (req, res) => {
+    const { startDate, endDate, sortOrder = 'desc' } = req.query; // Default to desc
+    try {
+        const prodWhere = {};
+        const alterWhere = {};
+        if (startDate && endDate) {
+            prodWhere.date = { gte: startDate, lte: endDate };
+            alterWhere.date = { gte: startDate, lte: endDate };
+        }
+
+        const [productions, alters] = await Promise.all([
+            prisma.dailyProduction.findMany({ where: prodWhere, orderBy: { date: 'desc' } }), // Fetch all, sort in memory
+            prisma.dailyAlter.findMany({ where: alterWhere, orderBy: { date: 'desc' } })
+        ]);
+
+        const report = {};
+
+        productions.forEach(p => {
+            if (!report[p.date]) report[p.date] = { date: p.date, productionWeight: 0, productionAmount: 0, alterWeight: 0, alterAmount: 0 };
+            report[p.date].productionWeight += p.totalWeight || 0;
+            report[p.date].productionAmount += p.totalAmount || 0;
+        });
+
+        alters.forEach(a => {
+            if (!report[a.date]) report[a.date] = { date: a.date, productionWeight: 0, productionAmount: 0, alterWeight: 0, alterAmount: 0 };
+            report[a.date].alterWeight += a.totalWeight || 0;
+            report[a.date].alterAmount += a.totalAmount || 0;
+        });
+
+        const sortedReport = Object.values(report).map(r => ({
+            ...r,
+            netWeight: r.productionWeight - r.alterWeight,
+            netAmount: r.productionAmount - r.alterAmount
+        })).sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+
+        res.json(sortedReport);
+    } catch (error) {
+        res.status(500).json({ detail: error.message });
+    }
+};
+
 module.exports = {
     getProductionReport,
     getProductReport,
-    getWorkerStats
+    getWorkerStats,
+    getDayWiseProductionReport
 };

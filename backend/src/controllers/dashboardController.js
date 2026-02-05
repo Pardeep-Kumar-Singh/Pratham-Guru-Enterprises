@@ -20,11 +20,16 @@ const getDashboardStats = async (req, res) => {
             }
         });
 
-        // Today's Production
+        // Today's Production & Alter
         const todayStr = new Date().toISOString().split('T')[0];
-        const todayProduction = await prisma.dailyProduction.findUnique({
-            where: { date: todayStr }
-        });
+        const [todayProduction, todayAlter] = await Promise.all([
+            prisma.dailyProduction.findUnique({ where: { date: todayStr } }),
+            prisma.dailyAlter.findUnique({ where: { date: todayStr } })
+        ]);
+
+        const todayProdQty = todayProduction?.totalQty || 0;
+        const todayAlterQty = todayAlter?.totalQty || 0;
+        const todayProdAmount = todayProduction?.totalAmount || 0;
 
         res.json({
             stats: {
@@ -35,7 +40,9 @@ const getDashboardStats = async (req, res) => {
                 coordinators: coordinatorCount
             },
             production: {
-                today: todayProduction?.totalQty || 0,
+                today: todayProdQty,
+                todayNet: todayProdQty - todayAlterQty,
+                todayAmount: todayProdAmount,
                 total: totalProduction._sum.totalQty || 0,
                 totalAmount: totalProduction._sum.totalAmount || 0
             },

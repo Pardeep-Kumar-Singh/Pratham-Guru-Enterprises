@@ -89,6 +89,7 @@ app.put('/invoices/:id', authenticateToken, billingController.updateInvoiceStatu
 // Reports Routes
 app.get('/reports/production', authenticateToken, reportsController.getProductionReport);
 app.get('/reports/products', authenticateToken, reportsController.getProductReport);
+app.get('/reports/daily', authenticateToken, reportsController.getDayWiseProductionReport);
 app.get('/reports/workers', authenticateToken, reportsController.getWorkerStats);
 
 app.get('/users/me', authenticateToken, authController.getMe);

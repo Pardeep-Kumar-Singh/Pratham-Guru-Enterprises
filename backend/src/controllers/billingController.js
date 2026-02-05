@@ -96,6 +96,65 @@ const getBillingData = async (req, res) => {
     }
 };
 
+const generateInvoice = async (req, res) => {
+    const { month, year, totalProducts, totalWeight, totalAmount } = req.body;
+    try {
+        const invoiceCount = await prisma.invoice.count({
+            where: { year: parseInt(year) }
+        });
+
+        const invoiceNumber = `INV-${year}-${(invoiceCount + 1).toString().padStart(3, '0')}`;
+
+        const invoice = await prisma.invoice.create({
+            data: {
+                invoiceNumber,
+                month,
+                year: parseInt(year),
+                totalProducts: parseInt(totalProducts),
+                totalWeight: parseFloat(totalWeight),
+                totalAmount: parseFloat(totalAmount),
+                status: 'Pending'
+            }
+        });
+
+        res.status(201).json(invoice);
+    } catch (error) {
+        res.status(400).json({ detail: error.message });
+    }
+};
+
+const getAllInvoices = async (req, res) => {
+    try {
+        const invoices = await prisma.invoice.findMany({
+            orderBy: { generatedAt: 'desc' }
+        });
+        res.json(invoices);
+    } catch (error) {
+        res.status(500).json({ detail: error.message });
+    }
+};
+
+const updateInvoiceStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        const invoice = await prisma.invoice.update({
+            where: { id: parseInt(id) },
+            data: { status }
+        });
+        res.json(invoice);
+    } catch (error) {
+        res.status(400).json({ detail: error.message });
+    }
+
+
+
+};
+
 module.exports = {
-    getBillingData
+
+    getBillingData,
+    generateInvoice,
+    getAllInvoices,
+    updateInvoiceStatus
 };

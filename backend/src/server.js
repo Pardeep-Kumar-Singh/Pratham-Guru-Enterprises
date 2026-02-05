@@ -9,6 +9,12 @@ const dashboardController = require('./controllers/dashboardController');
 const billingController = require('./controllers/billingController');
 const reportsController = require('./controllers/reportsController');
 const authenticateToken = require('./middleware/auth');
+const materialController = require('./controllers/materialController');
+
+
+// ... (existing imports)
+
+
 
 const multer = require('multer');
 const upload = multer();
@@ -65,7 +71,15 @@ app.delete('/variants/:id', authenticateToken, masterConfigurationController.del
 app.get('/products/:productId/rate-history', authenticateToken, masterConfigurationController.getRateHistory);
 
 // Billing Routes
+// Material / Wool Routes
+app.post('/materials/wool', authenticateToken, materialController.issueWool);
+app.get('/materials/wool', authenticateToken, materialController.getWoolHistory);
+
+// Billing Routes
 app.get('/billing', authenticateToken, billingController.getBillingData);
+app.post('/invoices/generate', authenticateToken, billingController.generateInvoice);
+app.get('/invoices', authenticateToken, billingController.getAllInvoices);
+app.put('/invoices/:id', authenticateToken, billingController.updateInvoiceStatus);
 
 // Reports Routes
 app.get('/reports/production', authenticateToken, reportsController.getProductionReport);

@@ -1,19 +1,31 @@
-import React, { useState } from "react";
-import { productMasterData } from "../admin/productMasterData";
+
+import React, { useState, useEffect } from "react";
+import api from "../api/axios";
 
 const DesignsScreen = () => {
-  /* 🔹 Local working copy */
-  const [products, setProducts] = useState(productMasterData);
+  const [products, setProducts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
 
   const [form, setForm] = useState({
-    id: "",
     category: "",
     name: "",
     baseRate: "",
     status: "Active",
   });
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get('/inventory/products');
+      setProducts(response.data);
+    } catch (error) {
+      console.error("Error fetching products", error);
+    }
+  };
 
   const handleChange = (field, value) => {
     setForm({ ...form, [field]: value });
@@ -22,34 +34,42 @@ const DesignsScreen = () => {
   /* ===============================
      ADD / UPDATE PRODUCT
   =============================== */
-  const handleSave = () => {
-    if (!form.id || !form.category || !form.name || !form.baseRate) {
+  const handleSave = async () => {
+    if (!form.category || !form.name || !form.baseRate) {
       alert("Please fill all fields");
       return;
     }
 
-    if (editId) {
-      // ✅ UPDATE
-      setProducts(
-        products.map((p) => (p.id === editId ? { ...form } : p))
-      );
-    } else {
-      // ✅ ADD
-      setProducts([...products, form]);
+    try {
+      if (editId) {
+        // ✅ UPDATE
+        await api.put(`/products/${editId}`, form);
+        setProducts(products.map((p) => (p.id === editId ? { ...p, ...form } : p)));
+      } else {
+        // ✅ ADD
+        const response = await api.post('/inventory/products', form);
+        setProducts([response.data, ...products]);
+      }
+      resetForm();
+    } catch (error) {
+      console.error("Error saving product", error);
+      alert("Failed to save product");
     }
-
-    resetForm();
   };
 
   const handleEdit = (product) => {
-    setForm(product);
+    setForm({
+      category: product.category,
+      name: product.name,
+      baseRate: product.baseRate,
+      status: product.status
+    });
     setEditId(product.id);
     setShowForm(true);
   };
 
   const resetForm = () => {
     setForm({
-      id: "",
       category: "",
       name: "",
       baseRate: "",
@@ -190,11 +210,10 @@ const DesignsScreen = () => {
                   </td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        item.status === "Active"
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${item.status === "Active"
                           ? "bg-green-100 text-green-700"
                           : "bg-gray-200 text-gray-600"
-                      }`}
+                        }`}
                     >
                       {item.status}
                     </span>

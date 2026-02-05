@@ -87,6 +87,30 @@ model RateHistory {
   createdAt DateTime @default(now())
 }
 
+
+model WoolTransaction {
+  id        Int      @id @default(autoincrement())
+  date      String // YYYY-MM-DD
+  batchId   String
+  qty       Float
+  issuedBy  String   @default("Admin")
+  issuedTo  String // Tendor or Artisan Name/ID
+  remarks   String?
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id            Int      @id @default(autoincrement())
+  invoiceNumber String   @unique // INV-YYYY-001
+  month         String // December 2024
+  year          Int
+  totalProducts Int
+  totalWeight   Float
+  totalAmount   Float
+  status        String   @default("Pending") // Pending, Paid
+  generatedAt   DateTime @default(now())
+}
+
 enum users_role {
   admin
   tendor

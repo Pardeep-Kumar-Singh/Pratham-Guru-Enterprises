@@ -6,6 +6,8 @@ const inventoryController = require('./controllers/inventoryController');
 const userManagementController = require('./controllers/userManagementController');
 const masterConfigurationController = require('./controllers/masterConfigurationController');
 const dashboardController = require('./controllers/dashboardController');
+const billingController = require('./controllers/billingController');
+const reportsController = require('./controllers/reportsController');
 const authenticateToken = require('./middleware/auth');
 
 const multer = require('multer');
@@ -19,8 +21,13 @@ app.use((req, res, next) => {
     next();
 });
 
+// CORS Configuration
+const allowedOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',')
+    : ["http://localhost:5173", "http://localhost:3000"];
+
 app.use(cors({
-    origin: ["http://localhost:5173", "http://localhost:3000", "https://pratham-guru-enterprises.vercel.app"],
+    origin: allowedOrigins,
     credentials: true
 }));
 
@@ -56,6 +63,14 @@ app.get('/products/:productId/variants', authenticateToken, masterConfigurationC
 app.post('/variants', authenticateToken, masterConfigurationController.createVariant);
 app.delete('/variants/:id', authenticateToken, masterConfigurationController.deleteVariant);
 app.get('/products/:productId/rate-history', authenticateToken, masterConfigurationController.getRateHistory);
+
+// Billing Routes
+app.get('/billing', authenticateToken, billingController.getBillingData);
+
+// Reports Routes
+app.get('/reports/production', authenticateToken, reportsController.getProductionReport);
+app.get('/reports/products', authenticateToken, reportsController.getProductReport);
+app.get('/reports/workers', authenticateToken, reportsController.getWorkerStats);
 
 app.get('/users/me', authenticateToken, authController.getMe);
 

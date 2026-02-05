@@ -107,7 +107,7 @@ const DashboardView = () => {
             <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Active</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
               <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Today</div>
               <div className="text-xl font-black text-gray-800">{stats?.production?.today || 0} <span className="text-xs font-normal">units</span></div>

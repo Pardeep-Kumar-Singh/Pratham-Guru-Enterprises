@@ -89,7 +89,7 @@ const ArtisanRegistration = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 lg:p-8 animate-in fade-in duration-500">
+    <div className="animate-in fade-in duration-500">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -140,7 +140,7 @@ const ArtisanRegistration = () => {
               {editingItem ? 'Edit Artisan Profile' : 'Register New Artisan'}
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <div className="space-y-2">
                 <label className="text-sm font-bold text-gray-700">Artisan Name <span className="text-red-500">*</span></label>
                 <input

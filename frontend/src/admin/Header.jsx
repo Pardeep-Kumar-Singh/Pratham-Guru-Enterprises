@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, Bell, LogOut } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
@@ -35,10 +35,6 @@ const Header = ({ mobileMenuOpen, setMobileMenuOpen }) => {
 
           {/* Right: Notifications + Logout */}
           <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-lg relative">
-              <Bell size={20} className="text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
 
             <button
               onClick={handleLogout}

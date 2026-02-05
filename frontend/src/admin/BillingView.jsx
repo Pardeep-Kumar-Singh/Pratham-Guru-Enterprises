@@ -11,12 +11,8 @@ const BillingView = () => {
   const [categories, setCategories] = useState([]);
 
   // Filters
-  const [startDate, setStartDate] = useState(() => {
-    const d = new Date();
-    d.setDate(1); // Default to start of month
-    return d.toISOString().split('T')[0];
-  });
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [category, setCategory] = useState("All");
 
   useEffect(() => {
@@ -54,8 +50,8 @@ const BillingView = () => {
   const invoiceData = {
     invoiceNo: "INV-" + new Date().getTime().toString().slice(-6),
     date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
-    buyerName: "Zillivet A/c", // Mock buyer as requested to keep design
-    buyerCity: "Sonepat",
+    buyerName: "Ajooba, Zillivate Ventures Pvt. Ltd. A/c", // Mock buyer as requested to keep design
+    buyerCity: "Sonipat, Haryana",
     amountInWords: "Rupees " + (billingData.totals.amount || 0).toLocaleString() + " Only", // Basic, could be improved with a library
     remarks: category === "All" ? "Combined monthly production" : `${category} specific production billing`,
   };
@@ -129,6 +125,13 @@ const BillingView = () => {
               />
             </div>
 
+            <button
+              onClick={() => { setStartDate(''); setEndDate(''); }}
+              className="text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl transition-colors whitespace-nowrap"
+            >
+              Show All History
+            </button>
+
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
               <Filter size={18} className="text-gray-400" />
               <select
@@ -140,6 +143,7 @@ const BillingView = () => {
                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
               </select>
             </div>
+
           </div>
         </div>
       </div>
@@ -152,7 +156,7 @@ const BillingView = () => {
               <FileText size={24} />
             </div>
             <h3 className="text-lg font-bold opacity-80 mb-1">Production Value</h3>
-            <div className="text-3xl font-black">₹{(billingData.totals.amount || 0).toLocaleString()}</div>
+            <div className="text-3xl font-black">₹{(billingData.totals.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             <p className="text-xs opacity-70 mt-2 font-medium">For the selected period & section</p>
           </div>
 
@@ -204,8 +208,8 @@ const BillingView = () => {
                         </span>
                       </td>
                       <td className="px-6 py-3 font-bold text-gray-700">{entry.item}</td>
-                      <td className="px-6 py-3 text-right text-gray-600 font-medium">{entry.quantity}</td>
-                      <td className="px-6 py-3 text-right font-black text-gray-800">₹{(entry.amount || 0).toLocaleString()}</td>
+                      <td className="px-6 py-3 text-right text-gray-600 font-medium">{Number(entry.quantity).toLocaleString('en-IN', { maximumFractionDigits: 3 })}</td>
+                      <td className="px-6 py-3 text-right font-black text-gray-800">₹{(entry.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -218,12 +222,30 @@ const BillingView = () => {
       {/* Recent Billing Activity (Real-time) */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2">
-          Recent Billing Activity
+          Recurring Billing Activity (All History)
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {billingData.recentActivity && billingData.recentActivity.length > 0 ? (
             billingData.recentActivity.map((activity, idx) => (
-              <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-200 transition-all group">
+              <div
+                key={idx}
+                onClick={() => {
+                  // Parse "September 2024" to startDate/endDate
+                  // activity.date is "Month Year" string from backend
+                  const [month, year] = activity.date.split(' ');
+                  const monthIndex = new Date(`${month} 1, 2000`).getMonth();
+                  const y = parseInt(year);
+
+                  const start = new Date(Date.UTC(y, monthIndex, 1)).toISOString().split('T')[0];
+                  const end = new Date(Date.UTC(y, monthIndex + 1, 0)).toISOString().split('T')[0];
+
+                  setStartDate(start);
+                  setEndDate(end);
+                  setCategory("All"); // Reset category or keep? Usually Invoice is "All"
+                  window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll up to see the updated data
+                }}
+                className="p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 cursor-pointer transition-all group"
+              >
                 <div className="flex justify-between items-start mb-3">
                   <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors">
                     <Download size={18} />
@@ -236,8 +258,8 @@ const BillingView = () => {
                 <div className="font-black text-gray-800">{activity.name}</div>
                 <div className="text-xs text-gray-500 mb-2">{activity.date}</div>
                 <div className="flex items-center justify-between mt-4">
-                  <div className="text-lg font-black text-blue-600">₹{(activity.amount || 0).toLocaleString()}</div>
-                  <button className="text-[10px] font-bold text-gray-400 hover:text-blue-600 uppercase tracking-widest">Details</button>
+                  <div className="text-lg font-black text-blue-600">₹{(activity.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <button className="text-[10px] font-bold text-gray-400 hover:text-blue-600 uppercase tracking-widest group-hover:text-blue-600">Select & Generate</button>
                 </div>
               </div>
             ))

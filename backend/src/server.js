@@ -51,6 +51,11 @@ app.delete('/inventory/products/:id', inventoryController.deleteProduct);
 app.get('/inventory/production/:date', inventoryController.getDailyProduction);
 app.post('/inventory/production', inventoryController.saveDailyProduction);
 app.delete('/inventory/production/:date', inventoryController.deleteDailyProduction);
+// Alter Routes
+app.get('/inventory/alter/:date', inventoryController.getDailyAlter);
+app.post('/inventory/alter', inventoryController.saveDailyAlter);
+app.delete('/inventory/alter/:date', inventoryController.deleteDailyAlter);
+
 
 // User Management Routes
 app.get('/users/role/:role', authenticateToken, userManagementController.getUsersByRole);

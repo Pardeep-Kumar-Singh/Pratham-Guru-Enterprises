@@ -7,7 +7,7 @@ const getBillingData = async (req, res) => {
     try {
         let whereClause = {};
 
-        if (startDate && endDate) {
+        if (startDate && startDate !== '' && endDate && endDate !== '') {
             whereClause.dailyProduction = {
                 date: {
                     gte: startDate,
@@ -19,6 +19,7 @@ const getBillingData = async (req, res) => {
         if (category && category !== 'All') {
             whereClause.category = category;
         }
+
 
         const entries = await prisma.productionEntry.findMany({
             where: whereClause,
@@ -32,11 +33,30 @@ const getBillingData = async (req, res) => {
             }
         });
 
+        // Fetch Alter Entries
+        let alterWhereClause = {};
+        if (startDate && startDate !== '' && endDate && endDate !== '') {
+            alterWhereClause.dailyAlter = {
+                date: { gte: startDate, lte: endDate }
+            };
+        }
+        if (category && category !== 'All') {
+            alterWhereClause.category = category;
+        }
+
+        const alterEntries = await prisma.alterEntry.findMany({
+            where: alterWhereClause,
+            include: { dailyAlter: true }
+        });
+
         // Grouping by item to provide a summarized view for the invoice
-        const summary = entries.reduce((acc, curr) => {
+        const summary = {};
+
+        // 1. Add Production
+        entries.forEach(curr => {
             const key = `${curr.category}-${curr.itemName}`;
-            if (!acc[key]) {
-                acc[key] = {
+            if (!summary[key]) {
+                summary[key] = {
                     category: curr.category,
                     item: curr.itemName,
                     quantity: 0,
@@ -45,33 +65,61 @@ const getBillingData = async (req, res) => {
                     amount: 0
                 };
             }
-            acc[key].quantity += curr.qty;
-            acc[key].amount += curr.amount;
-            return acc;
-        }, {});
+            summary[key].quantity += curr.qty;
+            summary[key].amount += curr.amount;
+        });
+
+        // 2. Subtract Alter (Deductions)
+        alterEntries.forEach(curr => {
+            const key = `${curr.category}-${curr.itemName}`;
+            if (summary[key]) {
+                summary[key].quantity -= curr.qty;
+                summary[key].amount -= curr.amount;
+            }
+        });
 
         const summarizedEntries = Object.values(summary);
 
         // Fetch recent activity - Grouped by Month for the last 6 months
+        // Get DailyProduction and DailyAlter
         const productions = await prisma.dailyProduction.findMany({
-            orderBy: { date: 'desc' },
-            take: 30 // Last 30 days or so to aggregate
+            orderBy: { date: 'desc' }
+        });
+        const alters = await prisma.dailyAlter.findMany({
+            orderBy: { date: 'desc' }
         });
 
-        const activitySummary = productions.reduce((acc, curr) => {
+        const activitySummary = {};
+
+        // Add Production Totals
+        productions.forEach(curr => {
+            if (!curr.date) return;
             const date = new Date(curr.date);
+            if (isNaN(date.getTime())) return; // Skip invalid dates
+
             const monthYear = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-            if (!acc[monthYear]) {
-                acc[monthYear] = {
+            if (!activitySummary[monthYear]) {
+                activitySummary[monthYear] = {
                     name: `${monthYear} Batch`,
                     date: monthYear,
                     amount: 0,
                     status: "Processed"
                 };
             }
-            acc[monthYear].amount += curr.totalAmount;
-            return acc;
-        }, {});
+            activitySummary[monthYear].amount += curr.totalAmount;
+        });
+
+        // Subtract Alter Totals
+        alters.forEach(curr => {
+            if (!curr.date) return;
+            const date = new Date(curr.date);
+            if (isNaN(date.getTime())) return;
+
+            const monthYear = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+            if (activitySummary[monthYear]) {
+                activitySummary[monthYear].amount -= curr.totalAmount;
+            }
+        });
 
         res.json({
             entries: entries.map(e => ({
@@ -81,10 +129,20 @@ const getBillingData = async (req, res) => {
                 itemName: e.itemName,
                 qty: e.qty,
                 rate: e.rate,
-                amount: e.amount
-            })),
-            summarizedEntries,
-            recentActivity: Object.values(activitySummary).slice(0, 3), // Show last 3 monthly batches
+                amount: e.amount,
+                type: 'Production'
+            })).concat(alterEntries.map(e => ({
+                id: e.id,
+                date: e.dailyAlter.date,
+                category: e.category,
+                itemName: e.itemName,
+                qty: -e.qty, // Negative for display if needed
+                rate: e.rate,
+                amount: -e.amount,
+                type: 'Alter'
+            }))),
+            summarizedEntries, // This is NET
+            recentActivity: Object.values(activitySummary),
             totals: {
                 qty: summarizedEntries.reduce((sum, e) => sum + e.quantity, 0),
                 amount: summarizedEntries.reduce((sum, e) => sum + e.amount, 0)
@@ -95,6 +153,7 @@ const getBillingData = async (req, res) => {
         res.status(500).json({ detail: error.message });
     }
 };
+
 
 const generateInvoice = async (req, res) => {
     const { month, year, totalProducts, totalWeight, totalAmount } = req.body;

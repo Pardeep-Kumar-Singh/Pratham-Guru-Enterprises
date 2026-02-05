@@ -17,7 +17,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
       return {
         description: `${e.category} - ${e.item}`,
         quantity: qty,
-        unit: "Nos",
+        unit: (e.category === 'Wool' || e.category === 'wool') ? "Kg" : "Nos",
         rate,
         amount,
       };
@@ -99,11 +99,12 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
         <div className="grid grid-cols-2 gap-4 border border-gray-400">
           <div className="p-3 border-r border-gray-400">
             <p className="font-bold">Pratham Guru Enterprises</p>
-            <p>Rajeev Nagar</p>
-            <p>Sonepat - 131001</p>
+            <p>573, Rajeev Nagar</p>
+            <p>Sonipat - 131001</p>
             <p>Haryana</p>
             <p className="mt-1">
-              <span className="font-semibold">E-mail:</span> pgrcrochet@gmail.com
+              <span className="font-semibold">E-mail:</span> prathamguruindia@gmail.com <br />
+              <span className="font-semibold">Phone:</span> +91 7027311213
             </p>
 
             <div className="mt-4">
@@ -163,16 +164,16 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
                     {item.description}
                   </td>
                   <td className="border border-gray-400 text-center p-1">
-                    {item.quantity} {item.unit}
+                    {Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 3 })} {item.unit}
                   </td>
                   <td className="border border-gray-400 text-right p-1">
-                    {item.rate.toFixed(2)}
+                    {item.rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="border border-gray-400 text-center p-1">
                     {item.unit}
                   </td>
                   <td className="border border-gray-400 text-right p-1">
-                    {item.amount.toFixed(2)}
+                    {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}
@@ -185,15 +186,15 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
           <div className="w-1/2 text-xs">
             <div className="flex justify-between border-t border-gray-400 pt-1">
               <span className="font-semibold">Sub Total</span>
-              <span>{derivedInvoice.subTotal.toFixed(2)}</span>
+              <span>{derivedInvoice.subTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-semibold">Less: TDS @1%</span>
-              <span>-{derivedInvoice.tds.toFixed(2)}</span>
+              <span>-{derivedInvoice.tds.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between font-bold border-t border-gray-400 pt-1">
               <span>Total</span>
-              <span>{derivedInvoice.total.toFixed(2)}</span>
+              <span>{derivedInvoice.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>

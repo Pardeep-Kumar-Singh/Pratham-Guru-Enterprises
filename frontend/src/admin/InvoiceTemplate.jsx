@@ -1,6 +1,45 @@
 import React, { useMemo, useRef } from "react";
 import html2pdf from "html2pdf.js";
 
+const numberToWords = (num) => {
+  const a = [
+    "", "One ", "Two ", "Three ", "Four ", "Five ", "Six ", "Seven ", "Eight ", "Nine ",
+    "Ten ", "Eleven ", "Twelve ", "Thirteen ", "Fourteen ", "Fifteen ", "Sixteen ", "Seventeen ", "Eighteen ", "Nineteen "
+  ];
+  const b = [
+    "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
+  ];
+
+  if ((num = num.toString()).length > 9) return "Overflow";
+  const n = ("000000000" + num)
+    .substr(-9)
+    .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  if (!n) return "";
+  let str = "";
+  str +=
+    n[1] != 0
+      ? (a[Number(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + "Crore "
+      : "";
+  str +=
+    n[2] != 0
+      ? (a[Number(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + "Lakh "
+      : "";
+  str +=
+    n[3] != 0
+      ? (a[Number(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + "Thousand "
+      : "";
+  str +=
+    n[4] != 0
+      ? (a[Number(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + "Hundred "
+      : "";
+  str +=
+    n[5] != 0
+      ? (str != "" ? "and " : "") +
+      (a[Number(n[5])] || b[n[5][0]] + " " + a[n[5][1]])
+      : "";
+  return str.trim();
+};
+
 const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
   const invoiceRef = useRef(null);
 
@@ -27,12 +66,15 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
     const tds = subTotal * 0.01;
     const total = subTotal - tds;
 
+    const amountInWords = total ? `Rupees ${numberToWords(Math.round(total))} Only` : "";
+
     return {
       ...invoice,
       items,
       subTotal,
       tds,
       total,
+      amountInWords
     };
   }, [inventoryEntries, invoice]);
 
@@ -119,12 +161,12 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
               {[
                 ["Invoice No.", derivedInvoice.invoiceNo],
                 ["Dated", derivedInvoice.date],
-                ["Delivery Note", "Mode/Terms of Payment"],
-                ["Supplier’s Ref.", "Other Reference(s)"],
-                ["Buyer’s Order No.", "Dated"],
-                ["Dispatch Document No.", "Dated"],
-                ["Despatched through", "Destination"],
-                ["Terms of Delivery", ""],
+                ["Delivery Note", "NA"],
+                ["Supplier’s Ref.", "NA"],
+                ["Buyer’s Order No.", "NA"],
+                ["Dispatch Document No.", "NA"],
+                ["Despatched through", "NA"],
+                ["Terms of Delivery", "NA"],
               ].map(([label, value], i) => (
                 <React.Fragment key={i}>
                   <div className="border border-gray-400 p-1 font-semibold">
@@ -226,7 +268,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
         </div>
 
         <p className="text-center text-xs mt-4">
-          This is a Computer Generated Invoice
+          This is a Software Generated Invoice under PG Enterprise
         </p>
       </div>
     </div>

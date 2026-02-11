@@ -2,11 +2,103 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const getBillingData = async (req, res) => {
-    const { startDate, endDate, category } = req.query;
+    const { startDate, endDate, category, type } = req.query;
 
     try {
-        let whereClause = {};
+        if (type === 'wool') {
+            let whereClause = {};
+            if (startDate && startDate !== '' && endDate && endDate !== '') {
+                whereClause.date = {
+                    gte: startDate,
+                    lte: endDate
+                };
+            }
 
+            const dailyWools = await prisma.dailyWool.findMany({
+                where: whereClause,
+                include: { entries: true },
+                orderBy: { date: 'desc' }
+            });
+
+            const entries = [];
+            const summary = {};
+
+            dailyWools.forEach(day => {
+                day.entries.forEach(entry => {
+                    // Filter by category if needed
+                    if (category && category !== 'All' && entry.category !== category) return;
+
+                    const calculatedAmount = entry.weight * 600;
+
+                    entries.push({
+                        id: entry.id,
+                        date: day.date,
+                        category: entry.category,
+                        itemName: entry.itemName,
+                        qty: entry.qty,
+                        weight: entry.weight,
+                        rate: 600,
+                        amount: calculatedAmount,
+                        type: 'Wool Inward'
+                    });
+
+                    const key = `${entry.category}-${entry.itemName}`;
+                    if (!summary[key]) {
+                        summary[key] = {
+                            category: entry.category,
+                            item: entry.itemName,
+                            quantity: 0,
+                            weight: 0,
+                            baseRate: 600,
+                            uom: entry.uom,
+                            amount: 0
+                        };
+                    }
+                    summary[key].quantity += entry.qty;
+                    summary[key].weight += entry.weight;
+                    summary[key].amount += calculatedAmount;
+                });
+            });
+
+            const summarizedEntries = Object.values(summary);
+
+            // Recent Activity for Wool
+            const activitySummary = {};
+            dailyWools.forEach(day => {
+                if (!day.date) return;
+                const date = new Date(day.date);
+                if (isNaN(date.getTime())) return;
+
+                const monthYear = date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+                if (!activitySummary[monthYear]) {
+                    activitySummary[monthYear] = {
+                        name: `${monthYear} Wool Batch`,
+                        date: monthYear,
+                        amount: 0,
+                        status: "Processed"
+                    };
+                }
+                // Amount isn't stored in DailyWool anymore, need to calc or use totalWeight * 600
+                // Assuming totalWeight is accurate in DailyWool
+                activitySummary[monthYear].amount += (day.totalWeight * 600);
+            });
+
+            res.json({
+                entries,
+                summarizedEntries,
+                recentActivity: Object.values(activitySummary),
+                totals: {
+                    qty: summarizedEntries.reduce((sum, e) => sum + e.quantity, 0),
+                    weight: summarizedEntries.reduce((sum, e) => sum + e.weight, 0),
+                    amount: summarizedEntries.reduce((sum, e) => sum + e.amount, 0)
+                }
+            });
+
+            return; // EXIT for Wool Type
+        }
+
+        // --- EXISTING STANDARD LOGIC ---
+        let whereClause = {};
         if (startDate && startDate !== '' && endDate && endDate !== '') {
             whereClause.dailyProduction = {
                 date: {
@@ -172,7 +264,8 @@ const generateInvoice = async (req, res) => {
                 totalProducts: parseInt(totalProducts),
                 totalWeight: parseFloat(totalWeight),
                 totalAmount: parseFloat(totalAmount),
-                status: 'Pending'
+                status: 'Pending',
+                type: req.body.type || 'Standard'
             }
         });
 

@@ -122,30 +122,30 @@ const ReportsSection = () => {
 
     return (
       <div className="space-y-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
             <BarChart3 className="text-pink-500" />
             Monthly Production Summary
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+              <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-black tracking-widest">
                 <tr>
                   <th className="px-6 py-4 text-left">Month</th>
                   {categoryList.map(cat => (
                     <th key={cat} className="px-6 py-4 text-right">{cat}</th>
                   ))}
-                  <th className="px-6 py-4 text-right text-pink-600 font-black">Total</th>
+                  <th className="px-6 py-4 text-right text-pink-600 dark:text-pink-400 font-black">Total</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {reportData.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-pink-50/30 transition">
-                    <td className="px-6 py-4 font-bold text-gray-800">{row.month}</td>
+                  <tr key={idx} className="hover:bg-pink-50/30 dark:hover:bg-pink-900/10 transition">
+                    <td className="px-6 py-4 font-bold text-gray-800 dark:text-gray-200">{row.month}</td>
                     {categoryList.map(cat => (
-                      <td key={cat} className="px-6 py-4 text-right text-gray-600">{row[cat] || 0}</td>
+                      <td key={cat} className="px-6 py-4 text-right text-gray-600 dark:text-gray-400">{row[cat] || 0}</td>
                     ))}
-                    <td className="px-6 py-4 text-right font-black text-pink-600">{row.total}</td>
+                    <td className="px-6 py-4 text-right font-black text-pink-600 dark:text-pink-400">{row.total}</td>
                   </tr>
                 ))}
                 {reportData.length === 0 && (
@@ -161,16 +161,16 @@ const ReportsSection = () => {
         </div>
 
         {/* Visual Chart */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6">Production Heatmap</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">Production Heatmap</h3>
           <div className="space-y-4">
             {reportData.map((row, idx) => (
               <div key={idx} className="group">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold text-gray-700">{row.month}</span>
-                  <span className="text-sm font-black text-pink-600">{row.total} units</span>
+                  <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{row.month}</span>
+                  <span className="text-sm font-black text-pink-600 dark:text-pink-400">{row.total} units</span>
                 </div>
-                <div className="h-6 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+                <div className="h-6 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-50 dark:border-gray-600">
                   <div
                     className="h-full bg-gradient-to-r from-pink-500 to-rose-600 rounded-full transition-all duration-1000 group-hover:brightness-110"
                     style={{ width: `${Math.min((row.total / (Math.max(...reportData.map(r => r.total)) || 1)) * 100, 100)}%` }}
@@ -205,11 +205,11 @@ const ReportsSection = () => {
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6">Inventory Share Analysis</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">Inventory Share Analysis</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+              <thead className="bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-black tracking-widest">
                 <tr>
                   <th className="px-6 py-4 text-left">Product / Section</th>
                   <th className="px-6 py-4 text-right">Quantity</th>
@@ -218,22 +218,22 @@ const ReportsSection = () => {
                   <th className="px-6 py-4 text-right">Share (%)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {reportData?.map((product, idx) => (
-                  <tr key={idx} className="hover:bg-purple-50/30 transition">
+                  <tr key={idx} className="hover:bg-purple-50/30 dark:hover:bg-purple-900/10 transition">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-gray-800">{product?.product || 'Unknown'}</div>
+                      <div className="font-bold text-gray-800 dark:text-gray-200">{product?.product || 'Unknown'}</div>
                       <div className="text-[10px] text-gray-400 font-bold uppercase">{product?.category || 'N/A'}</div>
                     </td>
-                    <td className="px-6 py-4 text-right text-gray-600 font-medium">{product?.quantity || 0}</td>
-                    <td className="px-6 py-4 text-right text-gray-600">₹{(product?.avgRate || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-right font-black text-purple-600">₹{(product?.revenue || 0).toLocaleString()}</td>
+                    <td className="px-6 py-4 text-right text-gray-600 dark:text-gray-400 font-medium">{product?.quantity || 0}</td>
+                    <td className="px-6 py-4 text-right text-gray-600 dark:text-gray-400">₹{(product?.avgRate || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-right font-black text-purple-600 dark:text-purple-400">₹{(product?.revenue || 0).toLocaleString()}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-3">
-                        <div className="w-20 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="w-20 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                           <div className="h-full bg-indigo-500" style={{ width: `${product?.percentage || 0}%` }}></div>
                         </div>
-                        <span className="font-black text-indigo-600 text-[10px]">{product?.percentage || 0}%</span>
+                        <span className="font-black text-indigo-600 dark:text-indigo-400 text-[10px]">{product?.percentage || 0}%</span>
                       </div>
                     </td>
                   </tr>
@@ -254,47 +254,47 @@ const ReportsSection = () => {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group transition-colors">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-              <DollarSign size={80} />
+              <DollarSign size={80} className="dark:text-white" />
             </div>
             <div className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Tendors</div>
-            <div className="text-5xl font-black text-blue-600">{workerStats.summary.tendors}</div>
-            <p className="text-xs text-gray-500 mt-4 font-bold flex items-center gap-1">
+            <div className="text-5xl font-black text-blue-600 dark:text-blue-400">{workerStats.summary.tendors}</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 font-bold flex items-center gap-1">
               Active accounts across zones
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group transition-colors">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-              <Package size={80} />
+              <Package size={80} className="dark:text-white" />
             </div>
             <div className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Gola Makers</div>
-            <div className="text-5xl font-black text-indigo-600">{workerStats.summary.golaMakers}</div>
-            <p className="text-xs text-gray-500 mt-4 font-bold">Production floor staff</p>
+            <div className="text-5xl font-black text-indigo-600 dark:text-indigo-400">{workerStats.summary.golaMakers}</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 font-bold">Production floor staff</p>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm relative overflow-hidden group">
+          <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 shadow-sm relative overflow-hidden group transition-colors">
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-              <Activity size={80} />
+              <Activity size={80} className="dark:text-white" />
             </div>
             <div className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Artisans</div>
-            <div className="text-5xl font-black text-cyan-600">{workerStats.summary.artisans}</div>
-            <p className="text-xs text-gray-500 mt-4 font-bold">Final finishing experts</p>
+            <div className="text-5xl font-black text-cyan-600 dark:text-cyan-400">{workerStats.summary.artisans}</div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-4 font-bold">Final finishing experts</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-6">Recent Staff Registrations</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">Recent Staff Registrations</h3>
           <div className="space-y-3">
             {workerStats?.recentWorkers?.map((user, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-blue-100 hover:bg-white transition-all">
+              <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-transparent hover:border-blue-100 dark:hover:border-blue-800 hover:bg-white dark:hover:bg-gray-700 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center font-black text-blue-600">
+                  <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl shadow-sm flex items-center justify-center font-black text-blue-600 dark:text-blue-400">
                     {user.username[0].toUpperCase()}
                   </div>
                   <div>
-                    <div className="font-bold text-gray-800">{user.username}</div>
+                    <div className="font-bold text-gray-800 dark:text-gray-200">{user.username}</div>
                     <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{user.role}</div>
                   </div>
                 </div>
@@ -336,15 +336,15 @@ const ReportsSection = () => {
               <TrendingUp size={28} />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-gray-900 tracking-tight">Reports & Analytics</h1>
-              <p className="text-sm text-gray-500 font-medium">Real-time business insights for Pratham Guru</p>
+              <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Reports & Analytics</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Real-time business insights for Pratham Guru</p>
             </div>
           </div>
 
           <div className="flex gap-2">
             <button
               onClick={() => handleExport()}
-              className="flex items-center gap-2 bg-white border border-gray-200 px-5 py-2.5 rounded-xl text-sm font-black text-gray-600 hover:bg-gray-50 transition-all active:scale-95 shadow-sm"
+              className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-5 py-2.5 rounded-xl text-sm font-black text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all active:scale-95 shadow-sm"
             >
               <Download size={18} />
               Export Data
@@ -352,7 +352,6 @@ const ReportsSection = () => {
           </div>
         </div>
 
-        {/* Report Type Selection */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {reportTypes.map((report) => {
             const Icon = report.icon;
@@ -363,12 +362,12 @@ const ReportsSection = () => {
                 onClick={() => setActiveReport(report.id)}
                 className={`p-6 rounded-3xl shadow-sm transition-all relative overflow-hidden group ${isActive
                   ? `bg-gradient-to-br ${report.color} text-white shadow-xl shadow-indigo-100 scale-105 z-10`
-                  : 'bg-white hover:bg-gray-50'
+                  : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
               >
                 {!isActive && <div className={`absolute top-0 right-0 w-2 h-full bg-gradient-to-b ${report.color} opacity-0 group-hover:opacity-100 transition-opacity`} />}
-                <Icon size={32} className={isActive ? 'text-white' : 'text-gray-400'} />
-                <h3 className={`mt-4 font-black text-sm uppercase tracking-widest ${isActive ? 'text-white' : 'text-gray-700'}`}>
+                <Icon size={32} className={isActive ? 'text-white' : 'text-gray-400 dark:text-gray-500'} />
+                <h3 className={`mt-4 font-black text-sm uppercase tracking-widest ${isActive ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>
                   {report.name}
                 </h3>
               </button>
@@ -377,26 +376,26 @@ const ReportsSection = () => {
         </div>
 
         {/* Filters Bar */}
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 mb-8 transition-colors">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
             <div className="flex flex-col md:flex-row gap-4 items-center flex-1">
-              <div className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-2.5">
+              <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600 rounded-2xl px-4 py-2.5 transition-colors">
                 <Calendar size={18} className="text-gray-400" />
                 <input
                   type="date"
                   value={dateRange.from}
                   onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-                  className="bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer"
+                  className="bg-transparent text-sm font-bold text-gray-700 dark:text-gray-200 outline-none cursor-pointer"
                 />
-                <span className="text-gray-300 font-black">TO</span>
+                <span className="text-gray-300 dark:text-gray-500 font-black">TO</span>
                 <input
                   type="date"
                   value={dateRange.to}
                   onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-                  className="bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer"
+                  className="bg-transparent text-sm font-bold text-gray-700 dark:text-gray-200 outline-none cursor-pointer"
                 />
               </div>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest hidden lg:block">Select Date Range for Analytics</p>
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest hidden lg:block">Select Date Range for Analytics</p>
             </div>
 
             <div className="flex gap-2">

@@ -132,6 +132,27 @@ model Invoice {
   totalAmount   Float
   status        String   @default("Pending") // Pending, Paid
   generatedAt   DateTime @default(now())
+  type          String   @default("Standard") // Standard, Wool
+}
+
+model DailyWool {
+  id          Int         @id @default(autoincrement())
+  date        String      @unique
+  totalQty    Float       @default(0)
+  totalWeight Float       @default(0)
+  entries     WoolEntry[]
+  createdAt   DateTime    @default(now())
+}
+
+model WoolEntry {
+  id          Int       @id @default(autoincrement())
+  dailyWoolId Int
+  dailyWool   DailyWool @relation(fields: [dailyWoolId], references: [id])
+  category    String
+  itemName    String
+  uom         String
+  qty         Float
+  weight      Float
 }
 
 enum users_role {

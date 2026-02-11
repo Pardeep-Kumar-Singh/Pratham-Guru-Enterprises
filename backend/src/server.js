@@ -44,6 +44,14 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/register', authController.register);
 app.post('/token', upload.none(), authController.login);
 
+const woolController = require('./controllers/woolController');
+
+
+// ... (existing imports)
+
+
+// ... 
+
 // Inventory Routes
 app.get('/inventory/products', inventoryController.getAllProducts);
 app.post('/inventory/products', inventoryController.createProduct);
@@ -55,6 +63,11 @@ app.delete('/inventory/production/:date', inventoryController.deleteDailyProduct
 app.get('/inventory/alter/:date', inventoryController.getDailyAlter);
 app.post('/inventory/alter', inventoryController.saveDailyAlter);
 app.delete('/inventory/alter/:date', inventoryController.deleteDailyAlter);
+
+// Wool Routes
+app.get('/inventory/wool/:date', woolController.getDailyWool);
+app.post('/inventory/wool', woolController.saveDailyWool);
+app.delete('/inventory/wool/:date', woolController.deleteDailyWool);
 
 
 // User Management Routes

@@ -38,13 +38,13 @@ const DashboardView = () => {
       {/* Header with Refresh */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Operational Overview</h2>
-          <p className="text-sm text-gray-500">Real-time metrics for your enterprise</p>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Operational Overview</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Real-time metrics for your enterprise</p>
         </div>
         <button
           onClick={fetchStats}
           disabled={loading}
-          className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-all shadow-sm active:scale-95"
+          className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm active:scale-95"
         >
           <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
           Refresh
@@ -96,40 +96,40 @@ const DashboardView = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Production Analytics */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center">
                 <BarChart3 size={20} />
               </div>
-              <h3 className="font-bold text-lg text-gray-800">Production Performance</h3>
+              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">Production Performance</h3>
             </div>
-            <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Active</span>
+            <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full font-bold uppercase tracking-wider">Active</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Today</div>
-              <div className="text-xl font-black text-gray-800">{stats?.production?.today || 0} <span className="text-xs font-normal">units</span></div>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-600">
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1 uppercase">Today</div>
+              <div className="text-xl font-black text-gray-800 dark:text-gray-100">{stats?.production?.today || 0} <span className="text-xs font-normal text-gray-500 dark:text-gray-400">units</span></div>
             </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="text-xs text-gray-500 font-bold mb-1 uppercase">Month</div>
-              <div className="text-xl font-black text-gray-800">{(stats?.production?.total || 0).toLocaleString()} <span className="text-xs font-normal">units</span></div>
+            <div className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-100 dark:border-gray-600">
+              <div className="text-xs text-gray-500 dark:text-gray-400 font-bold mb-1 uppercase">Month</div>
+              <div className="text-xl font-black text-gray-800 dark:text-gray-100">{(stats?.production?.total || 0).toLocaleString()} <span className="text-xs font-normal text-gray-500 dark:text-gray-400">units</span></div>
             </div>
-            <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-              <div className="text-xs text-blue-600 font-bold mb-1 uppercase">Value</div>
-              <div className="text-xl font-black text-blue-700">₹{(stats?.production?.totalAmount / 1000 || 0).toFixed(1)}K</div>
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
+              <div className="text-xs text-blue-600 dark:text-blue-400 font-bold mb-1 uppercase">Value</div>
+              <div className="text-xl font-black text-blue-700 dark:text-blue-300">₹{(stats?.production?.totalAmount / 1000 || 0).toFixed(1)}K</div>
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between text-sm font-bold">
-              <span className="text-gray-600">Goal Progress (9,000 Units)</span>
-              <span className="text-blue-600">{((stats?.production?.total || 0) / 9000 * 100).toFixed(1)}%</span>
+              <span className="text-gray-600 dark:text-gray-400">Goal Progress (9,000 Units)</span>
+              <span className="text-blue-600 dark:text-blue-400">{((stats?.production?.total || 0) / 9000 * 100).toFixed(1)}%</span>
             </div>
-            <div className="bg-gray-100 h-3 rounded-full overflow-hidden">
+            <div className="bg-gray-100 dark:bg-gray-700 h-3 rounded-full overflow-hidden">
               <div
-                className="bg-blue-600 h-full transition-all duration-1000"
+                className="bg-blue-600 dark:bg-blue-500 h-full transition-all duration-1000"
                 style={{ width: `${Math.min(((stats?.production?.total || 0) / 9000 * 100), 100)}%` }}
               />
             </div>
@@ -137,8 +137,8 @@ const DashboardView = () => {
         </div>
 
         {/* Quick Shortcuts */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
-          <h3 className="font-bold text-lg text-gray-800 mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 flex flex-col justify-between transition-colors">
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-6 flex items-center gap-2">
             <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
             Quick Access
           </h3>
@@ -146,41 +146,41 @@ const DashboardView = () => {
           <div className="space-y-3">
             <button
               onClick={() => navigate('/admin?tab=users')}
-              className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-blue-50 rounded-2xl transition-all group border border-gray-100 hover:border-blue-200"
+              className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-2xl transition-all group border border-gray-100 dark:border-gray-600 hover:border-blue-200 dark:hover:border-blue-500/50"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-colors text-gray-500 dark:text-gray-300">
                   <UserPlus size={18} />
                 </div>
-                <span className="font-bold text-sm text-gray-700 transition-colors">Manage Users</span>
+                <span className="font-bold text-sm text-gray-700 dark:text-gray-200 transition-colors">Manage Users</span>
               </div>
-              <Package size={14} className="text-gray-300 group-hover:text-blue-500" />
+              <Package size={14} className="text-gray-300 dark:text-gray-500 group-hover:text-blue-500" />
             </button>
 
             <button
               onClick={() => navigate('/admin?tab=inventory')}
-              className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-emerald-50 rounded-2xl transition-all group border border-gray-100 hover:border-emerald-200"
+              className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-2xl transition-all group border border-gray-100 dark:border-gray-600 hover:border-emerald-200 dark:hover:border-emerald-500/50"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors text-gray-500 dark:text-gray-300">
                   <Package size={18} />
                 </div>
-                <span className="font-bold text-sm text-gray-700 transition-colors">Track Stock</span>
+                <span className="font-bold text-sm text-gray-700 dark:text-gray-200 transition-colors">Track Stock</span>
               </div>
-              <Package size={14} className="text-gray-300 group-hover:text-emerald-500" />
+              <Package size={14} className="text-gray-300 dark:text-gray-500 group-hover:text-emerald-500" />
             </button>
 
             <button
               onClick={() => navigate('/admin?tab=billing')}
-              className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-amber-50 rounded-2xl transition-all group border border-gray-100 hover:border-amber-200"
+              className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-2xl transition-all group border border-gray-100 dark:border-gray-600 hover:border-amber-200 dark:hover:border-amber-500/50"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                <div className="p-2 bg-white dark:bg-gray-600 rounded-lg shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-colors text-gray-500 dark:text-gray-300">
                   <FileText size={18} />
                 </div>
-                <span className="font-bold text-sm text-gray-700 transition-colors">Billing Center</span>
+                <span className="font-bold text-sm text-gray-700 dark:text-gray-200 transition-colors">Billing Center</span>
               </div>
-              <Package size={14} className="text-gray-300 group-hover:text-amber-500" />
+              <Package size={14} className="text-gray-300 dark:text-gray-500 group-hover:text-amber-500" />
             </button>
           </div>
 
@@ -211,14 +211,14 @@ const DashboardView = () => {
         </div>
 
         {/* System Health */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 overflow-hidden relative">
-          <h3 className="font-bold text-lg text-gray-800 mb-6">Database Health</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 overflow-hidden relative transition-colors">
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-6">Database Health</h3>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-4">
               <div className="text-3xl font-black text-emerald-500">Online</div>
               <p className="text-xs text-gray-400 font-bold uppercase mt-1">Status</p>
             </div>
-            <div className="text-center p-4 border-l">
+            <div className="text-center p-4 border-l border-gray-100 dark:border-gray-700">
               <div className="text-3xl font-black text-blue-500">42ms</div>
               <p className="text-xs text-gray-400 font-bold uppercase mt-1">Latency</p>
             </div>

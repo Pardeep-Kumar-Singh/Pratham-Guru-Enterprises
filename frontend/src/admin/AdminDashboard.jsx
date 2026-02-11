@@ -61,19 +61,20 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <Header
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      {/* Sticky Header Wrapper */}
+      <div className="sticky top-0 z-50 bg-white shadow-sm">
+        <Header
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+        />
 
-      {/* Desktop Navigation */}
-      <DesktopNav
-        menuItems={menuItems}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+        <DesktopNav
+          menuItems={menuItems}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      </div>
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (

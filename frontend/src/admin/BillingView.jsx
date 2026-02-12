@@ -48,17 +48,62 @@ const BillingView = () => {
     }
   };
 
+  /* ================= SELECTION LOGIC ================= */
+  // Store selected items as a map of "category-item": boolean or entry object
+  const [selectedItems, setSelectedItems] = useState({});
+
+  // Initialize selection when data loads
+  useEffect(() => {
+    if (billingData.summarizedEntries && billingData.summarizedEntries.length > 0) {
+      const initialSelection = {};
+      billingData.summarizedEntries.forEach(e => {
+        initialSelection[`${e.category}-${e.item}`] = e;
+      });
+      setSelectedItems(initialSelection);
+    } else {
+      setSelectedItems({});
+    }
+  }, [billingData.summarizedEntries]);
+
+  const toggleItem = (entry) => {
+    const key = `${entry.category}-${entry.item}`;
+    setSelectedItems(prev => {
+      const newSelection = { ...prev };
+      if (newSelection[key]) {
+        delete newSelection[key];
+      } else {
+        newSelection[key] = entry;
+      }
+      return newSelection;
+    });
+  };
+
+  const toggleAll = () => {
+    if (Object.keys(selectedItems).length === billingData.summarizedEntries.length) {
+      setSelectedItems({});
+    } else {
+      const allSelected = {};
+      billingData.summarizedEntries.forEach(e => {
+        allSelected[`${e.category}-${e.item}`] = e;
+      });
+      setSelectedItems(allSelected);
+    }
+  };
+
+  // Calculate totals based on selection
+  const selectedTotalAmount = Object.values(selectedItems).reduce((sum, item) => sum + (item.amount || 0), 0);
+
   const invoiceData = {
-    invoiceNo: "INV-" + new Date().getTime().toString().slice(-6),
+    invoiceNo: `INV-${new Date().getFullYear()}/${String(new Date().getMonth() + 1).padStart(2, '0')}`,
     date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
     buyerName: "Ajooba, Zillivate Ventures Pvt. Ltd. A/c", // Mock buyer as requested to keep design
     buyerCity: "Sonipat, Haryana",
-    amountInWords: "Rupees " + (billingData.totals.amount || 0).toLocaleString() + " Only", // Basic, could be improved with a library
+    amountInWords: "Rupees " + (Math.round(selectedTotalAmount)).toLocaleString() + " Only", // Basic, could be improved with a library
     remarks: category === "All" ? "Combined monthly production" : `${category} specific production billing`,
   };
 
-  // Map billingData.summarizedEntries to the format expected by InvoiceTemplate
-  const inventoryEntries = billingData.summarizedEntries.map(e => ({
+  // Map only selected entries to the format expected by InvoiceTemplate
+  const inventoryEntries = Object.values(selectedItems).map(e => ({
     category: e.category,
     item: e.item,
     quantity: e.quantity,
@@ -69,7 +114,7 @@ const BillingView = () => {
   if (showInvoice) {
     return (
       <div className="space-y-6 animate-in slide-in-from-right duration-300">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 print:hidden">
           <button
             onClick={() => setShowInvoice(false)}
             className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors"
@@ -175,13 +220,17 @@ const BillingView = () => {
               <FileText size={24} />
             </div>
             <h3 className="text-lg font-bold opacity-80 mb-1">Production Value</h3>
-            <div className="text-3xl font-black">₹{(billingData.totals.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <p className="text-xs opacity-70 mt-2 font-medium">For the selected period & section</p>
+            <div className="text-3xl font-black">₹{selectedTotalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            <p className="text-xs opacity-70 mt-2 font-medium">
+              {Object.keys(selectedItems).length === billingData.summarizedEntries.length
+                ? "For all items in selected period"
+                : `For ${Object.keys(selectedItems).length} selected items`}
+            </p>
           </div>
 
           <button
             onClick={() => setShowInvoice(true)}
-            disabled={billingData.entries.length === 0}
+            disabled={Object.keys(selectedItems).length === 0}
             className="mt-6 w-full bg-white text-blue-700 py-3 rounded-xl font-black text-sm hover:bg-blue-50 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
           >
             <Printer size={18} />
@@ -212,6 +261,14 @@ const BillingView = () => {
               <table className="w-full text-left">
                 <thead className="bg-gray-50 dark:bg-gray-700/50 text-[10px] uppercase tracking-wider text-gray-400 font-black">
                   <tr>
+                    <th className="px-6 py-3 w-10">
+                      <input
+                        type="checkbox"
+                        checked={Object.keys(selectedItems).length === billingData.summarizedEntries.length && billingData.summarizedEntries.length > 0}
+                        onChange={toggleAll}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </th>
                     <th className="px-6 py-3">Section</th>
                     <th className="px-6 py-3">Item Name</th>
                     <th className="px-6 py-3 text-right">Quantity</th>
@@ -219,18 +276,31 @@ const BillingView = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-700 text-sm">
-                  {billingData.summarizedEntries.map((entry, idx) => (
-                    <tr key={idx} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                      <td className="px-6 py-3">
-                        <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] font-bold">
-                          {entry.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-3 font-bold text-gray-700 dark:text-gray-300">{entry.item}</td>
-                      <td className="px-6 py-3 text-right text-gray-600 dark:text-gray-400 font-medium">{Number(entry.quantity).toLocaleString('en-IN', { maximumFractionDigits: 3 })}</td>
-                      <td className="px-6 py-3 text-right font-black text-gray-800 dark:text-gray-200">₹{(entry.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    </tr>
-                  ))}
+                  {billingData.summarizedEntries.map((entry, idx) => {
+                    const uniqueKey = `${entry.category}-${entry.item}`;
+                    const isSelected = !!selectedItems[uniqueKey];
+
+                    return (
+                      <tr key={idx} className={`transition-colors ${isSelected ? 'bg-blue-50/10' : 'opacity-60 grayscale'}`}>
+                        <td className="px-6 py-3">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleItem(entry)}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </td>
+                        <td className="px-6 py-3">
+                          <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                            {entry.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 font-bold text-gray-700 dark:text-gray-300">{entry.item}</td>
+                        <td className="px-6 py-3 text-right text-gray-600 dark:text-gray-400 font-medium">{Number(entry.quantity).toLocaleString('en-IN', { maximumFractionDigits: 3 })}</td>
+                        <td className="px-6 py-3 text-right font-black text-gray-800 dark:text-gray-200">₹{(entry.amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}

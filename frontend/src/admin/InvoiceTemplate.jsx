@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js"; // No longer needed
 
 const numberToWords = (num) => {
   const a = [
@@ -56,7 +56,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
       return {
         description: `${e.category} - ${e.item}`,
         quantity: qty,
-        unit: (e.category === 'Wool' || e.category === 'wool') ? "Kg" : "Nos",
+        unit: (e.category.toLowerCase() === 'wool') ? "Kg" : (e.category.toLowerCase() === 'bootie' ? "Pairs" : "Nos"),
         rate,
         amount,
       };
@@ -82,33 +82,71 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
     window.print();
   };
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     const element = invoiceRef.current;
 
-    html2pdf()
-      .from(element)
-      .set({
-        margin: [0.4, 0.4, 0.4, 0.4],
-        filename: `Invoice_${derivedInvoice.invoiceNo}.pdf`,
-        image: { type: "jpeg", quality: 0.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-          logging: false,
+    // Clone the element to get the full HTML content
+    const clone = element.cloneNode(true);
+
+    // Ensure all styles are computed and inline if necessary, 
+    // but simplified approach: get outerHTML and wrap in basic structure
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Invoice</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+           @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+           body { font-family: 'Inter', sans-serif; }
+           
+           /* Replicate critical print styles */
+           .invoice-pdf {
+             width: 100%;
+             max-width: 210mm;
+             margin: 0 auto;
+             background: white;
+           }
+           table { width: 100%; border-collapse: collapse; }
+           th, td { border: 1px solid #9ca3af; } /* gray-400 */
+        </style>
+      </head>
+      <body>
+        ${clone.outerHTML}
+      </body>
+      </html>
+    `;
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/invoices/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming auth token is stored
         },
-        jsPDF: {
-          unit: "in",
-          format: "a4",
-          orientation: "portrait",
-          compress: true,
-        },
-        pagebreak: {
-          mode: ["css", "legacy"],
-          avoid: ["tr", "td", ".invoice-table"],
-        },
-      })
-      .save();
+        body: JSON.stringify({ htmlContent })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ details: response.statusText }));
+        throw new Error(errorData.details || 'Failed to generate PDF');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Invoice_${derivedInvoice.invoiceNo}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      alert(`Failed to download PDF: ${error.message}`);
+    }
   };
 
   return (
@@ -133,12 +171,13 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
       {/* ===== INVOICE CONTENT ===== */}
       <div
         ref={invoiceRef}
-        className="invoice-pdf bg-white p-6 max-w-5xl mx-auto text-sm text-black"
+        className="invoice-pdf relative bg-white p-[40px] w-[794px] mx-auto text-sm text-black"
+        style={{ fontFamily: 'Arial, sans-serif' }}
       >
-        <h1 className="text-center font-bold text-xl mb-4">INVOICE</h1>
+        <h1 className="text-center font-bold text-xl mb-2">INVOICE</h1>
 
         {/* ===== HEADER SECTION ===== */}
-        <div className="grid grid-cols-2 gap-4 border border-gray-400">
+        <div className="grid grid-cols-2 gap-2 border border-gray-400">
           <div className="p-3 border-r border-gray-400">
             <p className="font-bold">Pratham Guru Enterprises</p>
             <p>573, Rajeev Nagar</p>
@@ -149,7 +188,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
               <span className="font-semibold">Phone:</span> +91 7027311213
             </p>
 
-            <div className="mt-4">
+            <div className="mt-2">
               <p className="font-semibold">Buyer</p>
               <p className="font-bold">{derivedInvoice.buyerName}</p>
               <p>{derivedInvoice.buyerCity}</p>
@@ -183,38 +222,38 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
 
         {/* ===== ITEMS TABLE ===== */}
         <div className="invoice-table">
-          <table className="w-full border border-gray-400 mt-4 text-xs">
+          <table className="w-full border border-gray-400 mt-2 text-[12px]">
             <thead>
               <tr className="border-b border-gray-400">
-                <th className="border border-gray-400 p-1">Sl No.</th>
-                <th className="border border-gray-400 p-1 text-left">
+                <th className="border border-gray-400 px-1 py-0.5 align-middle font-medium">Sl No.</th>
+                <th className="border border-gray-400 px-1 py-0.5 text-left align-middle font-medium">
                   Description of Goods
                 </th>
-                <th className="border border-gray-400 p-1">Quantity</th>
-                <th className="border border-gray-400 p-1">Rate</th>
-                <th className="border border-gray-400 p-1">Per</th>
-                <th className="border border-gray-400 p-1">Amount</th>
+                <th className="border border-gray-400 px-1 py-0.5 align-middle font-medium">Quantity</th>
+                <th className="border border-gray-400 px-1 py-0.5 align-middle font-medium">Rate</th>
+                <th className="border border-gray-400 px-1 py-0.5 align-middle font-medium">Per</th>
+                <th className="border border-gray-400 px-1 py-0.5 align-middle font-medium">Amount</th>
               </tr>
             </thead>
             <tbody>
               {derivedInvoice.items.map((item, idx) => (
                 <tr key={idx}>
-                  <td className="border border-gray-400 text-center p-1">
+                  <td className="border border-gray-400 text-center px-1 py-0.5 align-middle font-medium">
                     {idx + 1}
                   </td>
-                  <td className="border border-gray-400 p-1">
+                  <td className="border border-gray-400 px-1 py-0.5 align-middle font-medium">
                     {item.description}
                   </td>
-                  <td className="border border-gray-400 text-center p-1">
+                  <td className="border border-gray-400 text-center px-1 py-0.5 align-middle font-medium">
                     {Number(item.quantity).toLocaleString('en-IN', { maximumFractionDigits: 3 })} {item.unit}
                   </td>
-                  <td className="border border-gray-400 text-right p-1">
+                  <td className="border border-gray-400 text-right px-1 py-0.5 align-middle font-medium">
                     {item.rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
-                  <td className="border border-gray-400 text-center p-1">
+                  <td className="border border-gray-400 text-center px-1 py-0.5 align-middle font-medium">
                     {item.unit}
                   </td>
-                  <td className="border border-gray-400 text-right p-1">
+                  <td className="border border-gray-400 text-right px-1 py-0.5 align-middle font-medium">
                     {item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
@@ -247,7 +286,7 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
           {derivedInvoice.amountInWords}
         </p>
 
-        <div className="grid grid-cols-2 gap-4 mt-4 text-xs">
+        <div className="grid grid-cols-2 gap-4 mt-2 text-xs">
           <div>
             <p className="font-semibold">Remarks:</p>
             <p>{derivedInvoice.remarks}</p>
@@ -261,13 +300,13 @@ const InvoiceTemplate = ({ invoice, inventoryEntries = [] }) => {
 
           <div className="text-right">
             <p className="font-semibold">for Pratham Guru Enterprises</p>
-            <div className="mt-10">
+            <div className="mt-8">
               <p className="font-semibold">Authorised Signatory</p>
             </div>
           </div>
         </div>
 
-        <p className="text-center text-xs mt-4">
+        <p className="text-center text-[10px] mt-8 w-full">
           This is a Software Generated Invoice under PG Enterprise
         </p>
       </div>

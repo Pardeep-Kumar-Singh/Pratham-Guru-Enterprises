@@ -8,6 +8,7 @@ const masterConfigurationController = require('./controllers/masterConfiguration
 const dashboardController = require('./controllers/dashboardController');
 const billingController = require('./controllers/billingController');
 const reportsController = require('./controllers/reportsController');
+const invoicePDFController = require('./controllers/invoicePDFController');
 const authenticateToken = require('./middleware/auth');
 const materialController = require('./controllers/materialController');
 
@@ -98,6 +99,7 @@ app.get('/billing', authenticateToken, billingController.getBillingData);
 app.post('/invoices/generate', authenticateToken, billingController.generateInvoice);
 app.get('/invoices', authenticateToken, billingController.getAllInvoices);
 app.put('/invoices/:id', authenticateToken, billingController.updateInvoiceStatus);
+app.post('/invoices/pdf', authenticateToken, invoicePDFController.generatePDF);
 
 // Reports Routes
 app.get('/reports/production', authenticateToken, reportsController.getProductionReport);

@@ -23,11 +23,12 @@
 }
 
 .invoice-pdf thead {
-  display: table-header-group; /* repeat header on each page */
+  display: table-header-group;
+  /* repeat header on each page */
 }
 
 .invoice-pdf tr {
-  page-break-inside: avoid;
+  page-break-inside: auto;
   page-break-after: auto;
 }
 
@@ -37,7 +38,7 @@
 
 .invoice-pdf td,
 .invoice-pdf th {
-  page-break-inside: avoid;
+  page-break-inside: auto;
 }
 
 /* Manual page break helper */
@@ -49,6 +50,7 @@
    PRINT MODE (Browser + PDF)
 ====================================== */
 @media print {
+
   /* Hide full app layout */
   * {
     color: #000 !important;
@@ -71,21 +73,30 @@
     position: relative;
   }
 
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
   body {
     background: #fff !important;
     margin: 0;
+    padding: 0;
   }
 
-  @page {
-    size: A4;
-    margin: 12mm;
+  .invoice-pdf {
+    margin: 0;
+    padding: 10mm !important;
+    /* Add padding to simulate margins since @page margin is 0 */
+    width: 100%;
+    box-shadow: none;
   }
 }
+
 /* Prevent table rows from splitting */
 .invoice-pdf table,
 .invoice-pdf tr,
 .invoice-pdf td,
 .invoice-pdf th {
-  page-break-inside: avoid !important;
+  page-break-inside: auto !important;
 }
-

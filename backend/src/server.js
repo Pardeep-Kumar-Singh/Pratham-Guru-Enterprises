@@ -8,6 +8,7 @@ const masterConfigurationController = require('./controllers/masterConfiguration
 const dashboardController = require('./controllers/dashboardController');
 const billingController = require('./controllers/billingController');
 const reportsController = require('./controllers/reportsController');
+const invoicePDFController = require('./controllers/invoicePDFController');
 const authenticateToken = require('./middleware/auth');
 const materialController = require('./controllers/materialController');
 
@@ -44,6 +45,14 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/register', authController.register);
 app.post('/token', upload.none(), authController.login);
 
+const woolController = require('./controllers/woolController');
+
+
+// ... (existing imports)
+
+
+// ... 
+
 // Inventory Routes
 app.get('/inventory/products', inventoryController.getAllProducts);
 app.post('/inventory/products', inventoryController.createProduct);
@@ -55,6 +64,11 @@ app.delete('/inventory/production/:date', inventoryController.deleteDailyProduct
 app.get('/inventory/alter/:date', inventoryController.getDailyAlter);
 app.post('/inventory/alter', inventoryController.saveDailyAlter);
 app.delete('/inventory/alter/:date', inventoryController.deleteDailyAlter);
+
+// Wool Routes
+app.get('/inventory/wool/:date', woolController.getDailyWool);
+app.post('/inventory/wool', woolController.saveDailyWool);
+app.delete('/inventory/wool/:date', woolController.deleteDailyWool);
 
 
 // User Management Routes
@@ -85,6 +99,7 @@ app.get('/billing', authenticateToken, billingController.getBillingData);
 app.post('/invoices/generate', authenticateToken, billingController.generateInvoice);
 app.get('/invoices', authenticateToken, billingController.getAllInvoices);
 app.put('/invoices/:id', authenticateToken, billingController.updateInvoiceStatus);
+app.post('/invoices/pdf', authenticateToken, invoicePDFController.generatePDF);
 
 // Reports Routes
 app.get('/reports/production', authenticateToken, reportsController.getProductionReport);

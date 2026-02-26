@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma');
 
 // Product Master additional operations (if needed beyond what inventoryController does)
 const updateProduct = async (req, res) => {

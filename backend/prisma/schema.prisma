@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -31,6 +31,8 @@ model Product {
   createdAt   DateTime      @default(now())
   variants    Variant[]
   rateHistory RateHistory[]
+
+  @@map("product")
 }
 
 model DailyProduction {
@@ -41,6 +43,8 @@ model DailyProduction {
   totalAmount Float             @default(0)
   entries     ProductionEntry[]
   createdAt   DateTime          @default(now())
+
+  @@map("dailyproduction")
 }
 
 model ProductionEntry {
@@ -54,6 +58,8 @@ model ProductionEntry {
   qty               Float
   weight            Float
   amount            Float
+
+  @@map("productionentry")
 }
 
 model DailyAlter {
@@ -64,6 +70,8 @@ model DailyAlter {
   totalAmount Float        @default(0)
   entries     AlterEntry[]
   createdAt   DateTime     @default(now())
+
+  @@map("dailyalter")
 }
 
 model AlterEntry {
@@ -77,6 +85,8 @@ model AlterEntry {
   qty          Float
   weight       Float
   amount       Float
+
+  @@map("alterentry")
 }
 
 model Artisan {
@@ -87,6 +97,8 @@ model Artisan {
   area      String?
   status    String   @default("Active")
   createdAt DateTime @default(now())
+
+  @@map("artisan")
 }
 
 model Variant {
@@ -98,6 +110,8 @@ model Variant {
   baseRate  Float
   status    String   @default("Active")
   createdAt DateTime @default(now())
+
+  @@map("variant")
 }
 
 model RateHistory {
@@ -108,6 +122,8 @@ model RateHistory {
   newRate   Float
   remark    String?
   createdAt DateTime @default(now())
+
+  @@map("ratehistory")
 }
 
 
@@ -120,6 +136,8 @@ model WoolTransaction {
   issuedTo  String // Tendor or Artisan Name/ID
   remarks   String?
   createdAt DateTime @default(now())
+
+  @@map("wooltransaction")
 }
 
 model Invoice {
@@ -133,6 +151,8 @@ model Invoice {
   status        String   @default("Pending") // Pending, Paid
   generatedAt   DateTime @default(now())
   type          String   @default("Standard") // Standard, Wool
+
+  @@map("invoice")
 }
 
 model DailyWool {
@@ -142,6 +162,8 @@ model DailyWool {
   totalWeight Float       @default(0)
   entries     WoolEntry[]
   createdAt   DateTime    @default(now())
+
+  @@map("dailywool")
 }
 
 model WoolEntry {
@@ -153,6 +175,8 @@ model WoolEntry {
   uom         String
   qty         Float
   weight      Float
+
+  @@map("woolentry")
 }
 
 enum users_role {

@@ -7,12 +7,13 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql://root:1234@db:3306/pratham_guru_db
-      - JWT_SECRET=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-      - JWT_EXPIRES_IN=24h
-      - FRONTEND_URL=http://localhost:3000
+      - DATABASE_URL=mysql://root:${MYSQL_ROOT_PASSWORD}@db:3306/${MYSQL_DATABASE}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
     restart: always
@@ -22,7 +23,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - VITE_API_BASE_URL=http://localhost:8000
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     container_name: pratham_frontend
     ports:
       - "3000:80"
@@ -38,13 +39,19 @@ services:
     ports:
       - "3307:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=1234
-      - MYSQL_DATABASE=pratham_guru_db
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - db_data:/var/lib/mysql
+      - ./sql/pratham_guru_db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
     restart: always
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   app-network:

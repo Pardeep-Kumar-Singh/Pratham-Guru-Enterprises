@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const prisma = require('../prisma');
 
 const getProductionReport = async (req, res) => {
     const { startDate, endDate } = req.query;

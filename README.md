@@ -1,162 +1,231 @@
-# Pratham Guru Enterprises
+# Pratham Guru Enterprises — Management System
 
-Full-stack enterprise management system for Pratham Guru Enterprises.
+A full-stack business management system for tracking production, inventory, billing, wool transactions, and artisans.
 
-## Project Structure
+---
+
+## 🗂️ Project Structure
 
 ```
 Pratham-Guru-Enterprises/
-├── frontend/          # React + Vite frontend application
-├── backend/           # Node.js + Express + Prisma API
-└── README.md          # This file
+├── backend/          # Node.js + Express + Prisma API
+├── frontend/         # React + Vite + Tailwind CSS UI
+├── sql/              # Initial database seed SQL
+├── docker-compose.yml
+└── .env              # Root-level env vars (Docker Compose)
 ```
 
-## Quick Start
+---
 
-### Prerequisites
-- Node.js 18+
-- MySQL 8.0+
-- npm or yarn
-
-### Development Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Pratham-Guru-Enterprises
-   ```
-
-2. **Setup Backend**
-   ```bash
-   cd backend
-   npm install
-   cp .env.example .env
-   # Edit .env with your database credentials
-   npx prisma migrate dev
-   npm run dev
-   ```
-   Backend will run on `http://localhost:8000`
-
-3. **Setup Frontend** (in a new terminal)
-   ```bash
-   cd frontend
-   npm install
-   cp .env.example .env
-   # .env should have VITE_API_BASE_URL=http://localhost:8000
-   npm run dev
-   ```
-   Frontend will run on `http://localhost:5173`
-
-4. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-
-## Features
-
-- **User Management**: Admin, Tendor, Coordinator, Gola Maker roles
-- **Inventory Management**: Daily production tracking
-- **Billing System**: Invoice generation and billing reports
-- **Reports & Analytics**: Production, product-wise, and worker reports
-- **Master Configuration**: Product and variant management
-- **Authentication**: JWT-based secure authentication
-
-## Tech Stack
-
-### Frontend
-- React 19
-- Vite
-- React Router
-- Axios
-- Tailwind CSS
-- Lucide React Icons
+## ⚙️ Technology Stack
 
 ### Backend
-- Node.js
-- Express
-- Prisma ORM
-- MySQL
-- JWT Authentication
-- bcryptjs
+| Technology | Version | Purpose |
+|---|---|---|
+| Node.js | v24+ | Runtime |
+| Express.js | v5 | HTTP framework |
+| Prisma ORM | v7 | Database ORM & migrations |
+| `@prisma/adapter-mariadb` | v7 | MySQL/MariaDB driver adapter |
+| MySQL | 8.0 | Relational database |
+| bcryptjs | v3 | Password hashing |
+| jsonwebtoken | v9 | JWT authentication |
+| dotenv | v17 | Environment variable loading |
+| Puppeteer | v24 | PDF generation |
+| nodemon | v3 | Dev auto-restart |
 
-## Documentation
+### Frontend
+| Technology | Version | Purpose |
+|---|---|---|
+| React | v19 | UI framework |
+| Vite | v7 | Build tool & dev server |
+| React Router DOM | v7 | Client-side routing |
+| Tailwind CSS | v4 | Utility-first styling |
+| Axios | v1 | HTTP client |
+| Lucide React | v0.5 | Icon library |
+| html2pdf.js | v0.14 | Client-side PDF export |
 
-- [Frontend Documentation](./frontend/README.md)
-- [Backend Documentation](./backend/README.md)
+### Infrastructure
+| Technology | Purpose |
+|---|---|
+| Docker & Docker Compose | Containerised deployment |
+| Nginx | Serves frontend in production container |
 
-## Environment Variables
+---
 
-### Frontend (.env)
-```env
-VITE_API_BASE_URL=http://localhost:8000
+## 🚀 Running Locally (Without Docker)
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) v20+
+- MySQL 8.0 running on `localhost:3306`
+- A database named `pratham_guru_db` created in MySQL
+
+### 1. Create the database
+```sql
+CREATE DATABASE pratham_guru_db;
 ```
 
-### Backend (.env)
+### 2. Set up Backend
+```bash
+cd backend
+
+# Install dependencies
+npm install
+
+# Apply database migrations
+node node_modules/prisma/build/index.js migrate deploy
+
+# Start development server (with auto-restart)
+npm run dev
+```
+
+Backend runs at → **http://localhost:8000**
+
+### 3. Set up Frontend
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Frontend runs at → **http://localhost:5173**
+
+### 4. Backend `.env` (already exists at `backend/.env`)
 ```env
 PORT=8000
-DATABASE_URL="mysql://user:password@localhost:3306/pratham_guru_db"
-JWT_SECRET=your-secret-key-here
+DATABASE_URL="mysql://root:1234@localhost:3306/pratham_guru_db"
+JWT_SECRET=your-jwt-secret
 JWT_EXPIRES_IN=24h
 FRONTEND_URL=http://localhost:5173
 ```
 
-## Deployment
-
-### Frontend
-Deploy to Vercel, Netlify, or any static hosting:
-```bash
-cd frontend
-npm run build
-# Deploy the dist/ folder
-```
-
-### Backend
-Deploy to Render, Railway, or any Node.js hosting:
+### 5. Open Prisma Studio (DB Browser)
 ```bash
 cd backend
-npm install
-npx prisma migrate deploy
-npm start
+npm run prisma:studio
 ```
+Prisma Studio opens at → **http://localhost:5555**
 
-**Important**: Update `FRONTEND_URL` in backend and `VITE_API_BASE_URL` in frontend to production URLs.
+---
 
-## Development Workflow
+## 🐳 Running with Docker
 
-1. **Backend Development**
-   - Make changes in `backend/src/`
-   - Server auto-restarts with nodemon
-   - Test API endpoints
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 
-2. **Frontend Development**
-   - Make changes in `frontend/src/`
-   - Hot reload enabled
-   - Test UI changes
-
-3. **Database Changes**
-   ```bash
-   cd backend
-   npx prisma migrate dev --name description_of_change
-   ```
-
-## Project Scripts
-
-### Frontend
+### 1. Configure environment variables
 ```bash
-npm run dev      # Start dev server
-npm run build    # Build for production
-npm run preview  # Preview production build
+# Copy the example file
+cp .env.example .env
 ```
 
-### Backend
+Edit `.env` at the **project root** (not inside backend/frontend):
+```env
+# Database
+MYSQL_ROOT_PASSWORD=your-strong-password
+MYSQL_DATABASE=pratham_guru_db
+
+# Backend
+JWT_SECRET=your-random-256-bit-secret
+JWT_EXPIRES_IN=24h
+
+# URLs
+FRONTEND_URL=http://localhost:3000
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+### 2. Build & Start all services
 ```bash
-npm run dev      # Start dev server with nodemon
-npm start        # Start production server
+# From the project root
+docker-compose up --build
 ```
 
-## Support
+### 3. Start without rebuilding (subsequent runs)
+```bash
+docker-compose up
+```
 
-For issues or questions, please contact the development team.
+### 4. Stop all services
+```bash
+docker-compose down
+```
 
-## License
+### 5. Stop and remove all data (full reset)
+```bash
+docker-compose down -v
+```
 
-Proprietary - All rights reserved
+### Service URLs (Docker)
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| MySQL (host access) | localhost:**3307** |
+
+> **Note:** MySQL is exposed on port `3307` in Docker to avoid conflicts with a local MySQL running on `3306`.
+
+---
+
+## 📦 Docker Services Overview
+
+| Container | Image | Role |
+|---|---|---|
+| `pratham_backend` | Custom (Node.js) | REST API |
+| `pratham_frontend` | Custom (Nginx + React) | Static UI |
+| `pratham_db` | `mysql:8.0` | Database |
+
+The database is auto-initialised using `sql/pratham_guru_db.sql` on first run.
+
+---
+
+## 🔑 Available Backend Scripts
+
+Run these from the `backend/` directory:
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start backend with hot-reload (development) |
+| `npm start` | Start backend (production) |
+| `npm run prisma:studio` | Open Prisma Studio database browser |
+
+---
+
+## 🗄️ Database Migrations
+
+Run from the `backend/` directory:
+
+```bash
+# Apply all pending migrations
+node node_modules/prisma/build/index.js migrate deploy
+
+# Sync schema without migrations (dev only)
+node node_modules/prisma/build/index.js db push
+
+# Regenerate Prisma Client after schema changes
+node node_modules/prisma/build/index.js generate
+```
+
+---
+
+## 🌐 API Base URL
+
+| Environment | URL |
+|---|---|
+| Local | `http://localhost:8000` |
+| Docker | `http://localhost:8000` |
+
+---
+
+## 📁 Key Files
+
+| File | Purpose |
+|---|---|
+| `backend/prisma/schema.prisma` | Database schema definition |
+| `backend/prisma.config.mjs` | Prisma 7 configuration (env loading, datasource) |
+| `backend/src/prisma.js` | Shared Prisma Client instance |
+| `docker-compose.yml` | Multi-container Docker setup |
+| `.env.example` | Template for environment variables |
+| `sql/pratham_guru_db.sql` | Initial database seed for Docker |

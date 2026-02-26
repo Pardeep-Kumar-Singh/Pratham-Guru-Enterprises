@@ -98,7 +98,7 @@ const BillingView = () => {
     date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-'),
     buyerName: "Ajooba, Zillivate Ventures Pvt. Ltd. A/c", // Mock buyer as requested to keep design
     buyerCity: "Sonipat, Haryana",
-    amountInWords: "Rupees " + (Math.round(selectedTotalAmount)).toLocaleString() + " Only", // Basic, could be improved with a library
+    amountInWords: "Rupees: " + (Math.round(selectedTotalAmount)).toLocaleString() + " Only", // Basic, could be improved with a library
     remarks: category === "All" ? "Combined monthly production" : `${category} specific production billing`,
   };
 
